@@ -1,5 +1,17 @@
 # Decisiones de arquitectura
 
+## Stack y enfoque — LibGDX puro
+
+No hay separación en capas, no hay StateFlow, no hay Koin, no hay interfaces de capas.
+El juego se implementa directamente con KtxGame / KtxScreen (patrón en `Main2.kt`).
+Target principal: **Desktop**. Android ya está configurado en el proyecto — usar si no añade trabajo significativo.
+
+Existe un proyecto previo en `/home/garrapeta/development/git/wargame/docs/` con análisis
+de reglas de juego útil (subsistemas, modelo de datos, modificadores de combate).
+La arquitectura de software de ese proyecto es **irrelevante** — era para Compose.
+
+
+
 ## Motor espacial — Movimiento libre (pulgadas)
 
 El tablero es espacio continuo 2D. No hay cuadrícula.
