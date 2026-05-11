@@ -2,13 +2,7 @@
 
 ## Código fuente (Kotlin)
 
-| Fichero | Descripción |
-|---------|-------------|
-| `core/src/main/kotlin/es/garrapeta/wargame/Main.kt` | Demo drop-game usando `ApplicationListener` directo (tutorial LibGDX) |
-| `core/src/main/kotlin/es/garrapeta/wargame/Main2.kt` | Demo con `KtxGame`/`KtxScreen` + KTX extensions — **patrón a seguir** |
-| `lwjgl3/src/main/kotlin/es/garrapeta/wargame/lwjgl3/Lwjgl3Launcher.kt` | Entry point desktop: crea `Lwjgl3Application`, configura ventana 640×480 |
-| `lwjgl3/src/main/kotlin/es/garrapeta/wargame/lwjgl3/StartupHelper.kt` | Fix de compatibilidad cross-platform (macOS threads, Windows paths, NVIDIA Linux) — no modificar |
-| `android/src/main/kotlin/es/garrapeta/wargame/android/AndroidLauncher.kt` | Entry point Android: `AndroidApplication`, modo inmersivo |
+empty for now
 
 ## Configuración de build
 

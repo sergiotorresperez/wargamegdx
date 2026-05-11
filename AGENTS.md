@@ -10,6 +10,9 @@ Package: `es.garrapeta.wargame`
 
 | Necesidad | Leer |
 |-----------|------|
+| Visión del juego completo y cómo MVP es punto de partida | `.agents/game_vision.md` |
+| Modelo de datos (Unit, Group, entidades futuras) | `.agents/data_model.md` |
+| Requisitos MVP Stage 1 (selección, movimiento, grupos) | `.agents/mvp_stage1_requirements.md` |
 | Decisiones de arquitectura (leer siempre antes de implementar) | `.agents/decisions.md` |
 | Librerías disponibles / versiones | `.agents/stack.md` |
 | Mapa de ficheros (¿dónde está X?) | `.agents/files.md` |

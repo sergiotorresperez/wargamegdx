@@ -9,22 +9,6 @@
 | Kotlin | 2.3.21 | Lenguaje |
 | Kotlinx Coroutines | 1.10.2 | Coroutines (via ktx-async) |
 
-## ECS — Entity Component System
-
-| Librería | Versión | Cuándo usar |
-|----------|---------|-------------|
-| Ashley (`com.badlogicgames.ashley`) | 1.7.4 | ECS oficial de LibGDX |
-| Artemis ODB (`net.onedaybeard.artemis`) | 2.3.0 | ECS alternativo, más rendimiento |
-
-**Decisión pendiente:** elegir uno de los dos antes de implementar entidades.
-KTX tiene módulos para ambos: `ktx-ashley` y `ktx-artemis`.
-
-## Física y AI
-
-| Librería | Versión | Propósito |
-|----------|---------|-----------|
-| Box2D (`gdx-box2d`) | 1.14.0 | Motor de física 2D |
-| gdx-ai | 1.8.2 | Steering behaviors, pathfinding, BT |
 
 ## UI
 
