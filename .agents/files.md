@@ -8,30 +8,40 @@
 |---------|---------|-------------|
 | `WarGame.kt` | `es.garrapeta.wargame` | Entry point: `KtxGame`, registra `WargameScreen` |
 
-### Model (`model/`)
+### Logic (`logic/`)
 
 | Fichero | Descripción |
 |---------|-------------|
 | `Unit.kt` | POJO con datos espaciales: posición, orientación (facing), tamaño. Sin lógica, sin herencia. |
+| `UnitExt.kt` | Extensiones de Unit: `canJoinGroup()`, `isContiguousWith()` para validar agrupación |
+| `UnitSetExt.kt` | Extensiones de Set<Unit>: `isValidGroup()` valida que todos sean mutuamente contiguos |
+| `GameLogicState.kt` | Estado del juego: lista de unidades, API mínima |
+
+### Geometry (`geometry/`)
+
+| Fichero | Descripción |
+|---------|-------------|
+| `GeometryUtils.kt` | Utilidades 2D: `pointInRotatedRect()`, `getCorners()` para rectángulos rotados |
 
 ### Engine (`engine/`)
 
 | Fichero | Descripción |
 |---------|-------------|
 | `Actor.kt` | Interfaz: contrato de renderizado (`render(shapeRenderer)`) |
-| `GameEngine.kt` | Gestor de actores: lista, agregar actores, iterar y renderizar |
+| `GameEngine.kt` | Gestor de actores: lista, agregar actores, iterar y renderizar, `getActors<T>()` para filtrar por tipo |
 
 ### Rendering (`rendering/`)
 
 | Fichero | Descripción |
 |---------|-------------|
-| `UnitActor.kt` | Implementa `Actor`. Encapsula `Unit`, dibuja rectángulo + chevron |
+| `ArmyUnitActor.kt` | Implementa `Actor`. Encapsula `Unit`, dibuja rectángulo + chevron, estado `selected` |
 
 ### Screen (`screen/`)
 
 | Fichero | Descripción |
 |---------|-------------|
-| `WargameScreen.kt` | `KtxScreen` principal: cámara, viewport, engine, renderizado |
+| `WargameScreen.kt` | `KtxScreen` principal: cámara, viewport, engine, renderizado. Implementa `KtxInputAdapter` |
+| `ArmyUnitSelectionSystem.kt` | Gestiona selección de unidades: click individual vs grupo, validación de agrupación |
 | `InitialUnitsFactory.kt` | Factory: crea las 4 unidades iniciales (U1 aislada, A-B-C grupo) |
 
 ## Configuración de build

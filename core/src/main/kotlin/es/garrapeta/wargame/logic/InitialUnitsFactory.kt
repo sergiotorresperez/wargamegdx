@@ -1,7 +1,6 @@
-package es.garrapeta.wargame.screen
+package es.garrapeta.wargame.logic
 
 import com.badlogic.gdx.math.Vector2
-import es.garrapeta.wargame.model.Unit
 
 class InitialUnitsFactory {
     fun createUnits(): List<Unit> {

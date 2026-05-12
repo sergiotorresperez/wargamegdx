@@ -25,3 +25,22 @@ El tablero es espacio continuo 2D. No hay cuadrícula.
 - Un agente que toque el motor espacial NO debe introducir lógica de celda/tile.
 - Las reglas de Mighty Armies hablan de "pulgadas" directamente — mapear 1 pulgada = 1 unidad de mundo.
 - Esta decisión escala a DBA 2.2 sin reescritura (DBA también usa MU libres).
+
+## Selección y agrupación de unidades
+
+**Concepto de grupo:** múltiples unidades que cumplen condiciones de formación.
+- Misma orientación (within 5° tolerance)
+- Contiguas: compartiendo borde (top-right == top-left, etc.)
+
+**Validación:** `Unit.canJoinGroup(others)` devuelve true si:
+- El conjunto es vacío (siempre se puede seleccionar una)
+- O hay al menos una unidad en `others` contigua a esta unit
+
+**Selección en UI:**
+- **Click sin grupo (single):** toggle individual o reemplazar selección
+- **Click con grupo (Ctrl/Cmd):** agregar si es válido, remover si el resto sigue siendo grupo válido
+
+**Implementación:**
+- `UnitExt.kt`: extensiones `canJoinGroup()`, `isContiguousWith()`, funciones de geometría
+- `ArmyUnitSelectionSystem`: máquina de selección, valida y aplica cambios
+- `GeometryUtils.getCorners()`: cálculo de esquinas para rectángulos rotados
