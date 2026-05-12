@@ -2,7 +2,37 @@
 
 ## Código fuente (Kotlin)
 
-empty for now
+### Core game (`core/src/main/kotlin/es/garrapeta/wargame/`)
+
+| Fichero | Paquete | Descripción |
+|---------|---------|-------------|
+| `WarGame.kt` | `es.garrapeta.wargame` | Entry point: `KtxGame`, registra `WargameScreen` |
+
+### Model (`model/`)
+
+| Fichero | Descripción |
+|---------|-------------|
+| `Unit.kt` | POJO con datos espaciales: posición, orientación (facing), tamaño. Sin lógica, sin herencia. |
+
+### Engine (`engine/`)
+
+| Fichero | Descripción |
+|---------|-------------|
+| `Actor.kt` | Interfaz: contrato de renderizado (`render(shapeRenderer)`) |
+| `GameEngine.kt` | Gestor de actores: lista, agregar actores, iterar y renderizar |
+
+### Rendering (`rendering/`)
+
+| Fichero | Descripción |
+|---------|-------------|
+| `UnitActor.kt` | Implementa `Actor`. Encapsula `Unit`, dibuja rectángulo + chevron |
+
+### Screen (`screen/`)
+
+| Fichero | Descripción |
+|---------|-------------|
+| `WargameScreen.kt` | `KtxScreen` principal: cámara, viewport, engine, renderizado |
+| `InitialUnitsFactory.kt` | Factory: crea las 4 unidades iniciales (U1 aislada, A-B-C grupo) |
 
 ## Configuración de build
 
