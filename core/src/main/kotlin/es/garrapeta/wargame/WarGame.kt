@@ -1,18 +1,12 @@
 package es.garrapeta.wargame
 
-import com.badlogic.gdx.Game
+import ktx.app.KtxGame
+import ktx.app.KtxScreen
+import es.garrapeta.wargame.screen.WargameScreen
 
-
-class WarGame : Game() {
-
+class WarGame : KtxGame<KtxScreen>() {
     override fun create() {
-    }
-
-    override fun render() {
-        super.render()
-    }
-
-    override fun dispose() {
-        screen?.dispose()
+        addScreen(WargameScreen())
+        setScreen<WargameScreen>()
     }
 }
