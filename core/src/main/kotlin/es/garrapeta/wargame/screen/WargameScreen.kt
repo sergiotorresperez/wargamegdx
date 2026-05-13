@@ -57,6 +57,14 @@ class WargameScreen : KtxScreen, KtxInputAdapter {
             movementSystem.onMoveForward(delta, selectionSystem.selectedUnits)
         }
 
+        // Update rotación
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            movementSystem.onRotateGroup(-15f, selectionSystem.selectedUnits)
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            movementSystem.onRotateGroup(15f, selectionSystem.selectedUnits)
+        }
+
         // Limpiar pantalla
         ScreenUtils.clear(0f, 0f, 0f, 1f)
 

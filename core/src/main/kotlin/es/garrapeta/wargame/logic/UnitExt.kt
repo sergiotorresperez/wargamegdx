@@ -1,6 +1,7 @@
 package es.garrapeta.wargame.logic
 
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.math.MathUtils
 import es.garrapeta.wargame.geometry.GeometryUtils
 
 fun Unit.canJoinGroup(others: Set<Unit>): Boolean {
@@ -70,3 +71,5 @@ private fun isABelowB(aCorners: List<Vector2>, bCorners: List<Vector2>): Boolean
     val tolerance = 0.1f
     return aTopLeft.dst(bBottomLeft) <= tolerance && aTopRight.dst(bBottomRight) <= tolerance
 }
+
+
