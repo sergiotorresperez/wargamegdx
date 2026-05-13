@@ -34,6 +34,8 @@ class WargameScreen : KtxScreen, KtxInputAdapter {
         onUnitsSelected = ::onArmyUnistSelected
     )
 
+    private val movementSystem = ArmyUnitMovementSystem(gameLogicState)
+
     override fun show() {
         // Crear actores y mapear por unit id
         for (armyUnit in InitialUnitsFactory().createUnits()) {
@@ -50,6 +52,11 @@ class WargameScreen : KtxScreen, KtxInputAdapter {
     }
 
     override fun render(delta: Float) {
+        // Update movimiento
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            movementSystem.onMoveForward(delta, selectionSystem.selectedUnits)
+        }
+
         // Limpiar pantalla
         ScreenUtils.clear(0f, 0f, 0f, 1f)
 
