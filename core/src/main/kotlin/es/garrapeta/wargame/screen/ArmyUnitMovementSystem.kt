@@ -12,8 +12,8 @@ class ArmyUnitMovementSystem(val gameLogicState: GameLogicState) {
     fun onMoveForward(delta: Float, selectedUnits: Set<Unit>) {
         selectedUnits.forEach { unit ->
             val rad = MathUtils.degreesToRadians * unit.facingAngle
-            unit.position.x += -MathUtils.sin(rad) * speedInchesPerSecond * delta
-            unit.position.y += MathUtils.cos(rad) * speedInchesPerSecond * delta
+            unit.center.x += -MathUtils.sin(rad) * speedInchesPerSecond * delta
+            unit.center.y += MathUtils.cos(rad) * speedInchesPerSecond * delta
         }
     }
 

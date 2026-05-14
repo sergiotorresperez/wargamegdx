@@ -20,8 +20,9 @@ class ArmyUnitSelectionSystem(
         val hitUnit = armyUnits.find { unit ->
             GeometryUtils.pointInRotatedRect(
                 point = clickPoint,
-                rectCenter = unit.position,
-                rectSize = unit.size,
+                rectCenter = unit.center,
+                width = unit.width,
+                depth = unit.depth,
                 facingAngleDegrees = unit.facingAngle
             )
         }

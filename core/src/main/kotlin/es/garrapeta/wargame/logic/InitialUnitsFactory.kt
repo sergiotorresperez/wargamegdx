@@ -7,7 +7,7 @@ class InitialUnitsFactory {
         // Unidad aislada: U1
         val u1 = Unit(
             id = "U1",
-            position = Vector2(6f, 18f),
+            center = Vector2(6f, 18f),
             facingAngle = 0f
         )
 
@@ -15,17 +15,17 @@ class InitialUnitsFactory {
         // Separación 2" en X (= width de unidad)
         val unitA = Unit(
             id = "A",
-            position = Vector2(14f, 12f),
+            center = Vector2(14f, 12f),
             facingAngle = 0f
         )
         val unitB = Unit(
             id = "B",
-            position = Vector2(16f, 12f),
+            center = Vector2(16f, 12f),
             facingAngle = 0f
         )
         val unitC = Unit(
             id = "C",
-            position = Vector2(18f, 12f),
+            center = Vector2(18f, 12f),
             facingAngle = 0f
         )
 

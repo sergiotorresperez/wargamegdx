@@ -10,14 +10,16 @@ object GeometryUtils {
      *
      * @param point Punto a testear (world space)
      * @param rectCenter Centro del rectángulo
-     * @param rectSize Tamaño del rectángulo (width, height)
+     * @param width Ancho del rectángulo
+     * @param depth Profundidad del rectángulo
      * @param facingAngleDegrees Ángulo de rotación en grados
      * @return true si el punto está dentro del rectángulo, false en caso contrario
      */
     fun pointInRotatedRect(
         point: Vector2,
         rectCenter: Vector2,
-        rectSize: Vector2,
+        width: Float,
+        depth: Float,
         facingAngleDegrees: Float
     ): Boolean {
         // Transformar punto a local space del rectángulo
@@ -33,8 +35,8 @@ object GeometryUtils {
         val localY = dx * sin + dy * cos
 
         // Comprobar si está dentro del rectángulo en local space
-        val halfWidth = rectSize.x / 2f
-        val halfHeight = rectSize.y / 2f
+        val halfWidth = width / 2f
+        val halfHeight = depth / 2f
 
         return localX >= -halfWidth && localX <= halfWidth &&
                localY >= -halfHeight && localY <= halfHeight
@@ -44,17 +46,18 @@ object GeometryUtils {
      * Calcula las 4 esquinas de un rectángulo rotado.
      *
      * @param position Centro del rectángulo
-     * @param size Tamaño del rectángulo (width, height)
+     * @param width Ancho del rectángulo
+     * @param depth Profundidad del rectángulo
      * @param facingAngleDegrees Ángulo de rotación en grados
      * @return Lista de 4 Vector2 en orden: top-left, top-right, bottom-right, bottom-left
      */
-    fun getCorners(position: Vector2, size: Vector2, facingAngleDegrees: Float): List<Vector2> {
+    fun getCorners(position: Vector2, width: Float, depth: Float, facingAngleDegrees: Float): List<Vector2> {
         val radians = MathUtils.degreesToRadians * facingAngleDegrees
         val cos = MathUtils.cos(radians)
         val sin = MathUtils.sin(radians)
 
-        val hw = size.x / 2f
-        val hh = size.y / 2f
+        val hw = width / 2f
+        val hh = depth / 2f
 
         val corners = listOf(
             Vector2(-hw, hh),   // top-left

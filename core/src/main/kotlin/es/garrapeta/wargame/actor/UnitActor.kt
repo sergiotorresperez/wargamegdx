@@ -14,10 +14,10 @@ class UnitActor(val unit: Unit) : Actor {
     var selected: Boolean = false
 
     override fun render(shapeRenderer: ShapeRenderer) {
-        val hw = unit.size.x / 2f
-        val hh = unit.size.y / 2f
-        val x = unit.position.x
-        val y = unit.position.y
+        val hw = unit.width / 2f
+        val hh = unit.depth / 2f
+        val x = unit.center.x
+        val y = unit.center.y
         val angle = unit.facingAngle
 
         fun rotatePoint(px: Float, py: Float): Pair<Float, Float> {
@@ -34,7 +34,7 @@ class UnitActor(val unit: Unit) : Actor {
         shapeRenderer.rect(
             x - hw, y - hh,
             hw, hh,
-            unit.size.x, unit.size.y,
+            unit.width, unit.depth,
             1f, 1f,
             angle
         )

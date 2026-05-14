@@ -17,9 +17,9 @@ fun Unit.isContiguousWith(that: Unit): Boolean {
     }
     if (orientationDiff > 5f) return false
 
-    val aCorners = GeometryUtils.getCorners(that.position, that.size, that.facingAngle)
+    val aCorners = GeometryUtils.getCorners(that.center, that.width, that.depth, that.facingAngle)
     val bCorners =
-        GeometryUtils.getCorners(this.position, this.size, this.facingAngle)
+        GeometryUtils.getCorners(this.center, this.width, this.depth, this.facingAngle)
 
     // A is to the left of B OR to the right OR above OR below
     return isALeftOfB(aCorners, bCorners) ||
