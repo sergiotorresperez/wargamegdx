@@ -25,8 +25,10 @@ class WargameScreen : KtxScreen {
         camera.update()
 
         InitialElementsFactory().createElement().forEach { element ->
-            engine.addActor(ElementActor(element = element))
+            engine.addActor(actor = ElementActor(element = element))
         }
+
+        engine.getActorById<ElementActor>(id = "B")?.isSelected = true
     }
 
     override fun render(delta: Float) {

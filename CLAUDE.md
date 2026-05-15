@@ -114,8 +114,8 @@ Algunos alias para workflow humano-ai:
 |-------|---------|-----------|------------------|
 | `WarGame` | `wargame` | Entry point; arranca la app y lanza `WargameScreen` | Extiende `KtxGame` |
 | `WargameScreen` | `wargame.screen` | Pantalla principal; crea `GameEngine`, delega render | Usa `GameEngine`, `InitialElementsFactory` |
-| `GameEngine` | `wargame.engine` | Colección de `Actor`s; orquesta el ciclo render con autoShapeType | Itera `List<Actor>` |
-| `Actor` | `wargame.engine` | Interfaz: un objeto renderable recibe `(ShapeRenderer, delta)` | — |
+| `GameEngine` | `wargame.engine` | Colección de `Actor`s; `addActor`, `removeActor`, `getActorById<T>`, render con autoShapeType | Itera `List<Actor>` |
+| `Actor` | `wargame.engine` | Interfaz: `id: String` + `render(ShapeRenderer, delta)` | — |
 | `ElementActor` | `wargame.engine` | Renderiza un `Element`: fill azul, borde y chevron blancos | Implementa `Actor`, lee `Element` |
 | `Element` | `wargame.logic` | Datos espaciales de una unidad: posición, ángulo, tamaño | — |
 | `InitialElementsFactory` | `wargame.logic` | Crea el layout inicial: A aislada, B/C/D en formación flanco a flanco | Produce `List<Element>` |
