@@ -63,7 +63,7 @@ class ElementActor(val element: Element) : Actor {
         val outlineHalfW: Float = halfW + SELECTION_OUTLINE_PADDING
         val outlineHalfD: Float = halfD + SELECTION_OUTLINE_PADDING
         shapeRenderer.set(ShapeType.Line)
-        shapeRenderer.color = Color.GREEN
+        shapeRenderer.color = Color.YELLOW
         shapeRenderer.rect(
             element.position.x - outlineHalfD,
             element.position.y - outlineHalfW,
