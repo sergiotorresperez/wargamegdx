@@ -257,7 +257,49 @@ class ElementActor(val element: GameElement) : WorldActor() {
 
 ---
 
-## 14. Open questions
+## 14. Rendering an element with ShapeRenderer
+
+**Decision**: use `ShapeRenderer.rect(x, y, originX, originY, width, height, scaleX, scaleY, degrees)` to draw the element body and border, with the **depth dimension along the rect's local X axis** and the **width dimension along the local Y axis**, then rotate by `angleDeg`.
+
+### Why this mapping
+
+`ShapeRenderer.rect` defines the unrotated rectangle in local space where local +X is horizontal and local +Y is vertical. The rotation is applied counter-clockwise around the origin point.
+
+In the element model:
+- `depth` (0.8 in) = the **forward/backward** dimension — along the facing direction
+- `width` (1.6 in) = the **side** dimension — perpendicular to facing
+
+When `angleDeg = 0` (facing east, +X), the element extends 0.8 in along +X and 1.6 in along ±Y. So in local (unrotated) space the rect must be **0.8 wide (local X) × 1.6 tall (local Y)**. Rotating by `angleDeg` then correctly aligns it with the facing direction.
+
+### Correct call pattern
+
+```kotlin
+val halfW = element.width / 2f   // 0.8
+val halfD = element.depth / 2f   // 0.4
+
+shapeRenderer.rect(
+    element.position.x - halfD,  // bottom-left x  (depth is the local-X dimension)
+    element.position.y - halfW,  // bottom-left y  (width is the local-Y dimension)
+    halfD,                       // originX — pivot at center
+    halfW,                       // originY — pivot at center
+    element.depth,               // local-X size = depth
+    element.width,               // local-Y size = width
+    1f, 1f,
+    element.angleDeg,
+)
+```
+
+### Common mistake
+
+Passing `element.width` as the `width` parameter and `element.depth` as `height` feels natural but is **wrong**. It draws a 1.6×0.8 rect in local space and after rotating 90° you get a 0.8×1.6 result — taller than wide for a north-facing element, which is the opposite of what the model specifies.
+
+### Chevron / corners
+
+Chevron and corner computations use the decisions §5 formula directly (forward vector × halfD, right vector × halfW) and are **not** affected by this rect-axis convention — they work in world space and are always correct regardless of angle.
+
+---
+
+## 15. Open questions
 
 | # | Question | Status |
 |---|---|---|
