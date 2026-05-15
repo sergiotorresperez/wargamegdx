@@ -36,7 +36,7 @@ Dos ejércitos de 60 AP se enfrentan en un tablero de 36"×24". Turno: tirada de
 5. Para saber qué ficheros fuente existen → consulta §ClassMap de este fichero.
 
 ## Estado actual
-- `WargameScreen` pinta 4 elementos (A aislada, B/C/D en formación) como rectángulos azules con borde y chevron blancos.
+- `WargameScreen` + `GameEngine` + `ElementActor` operativos: 4 elementos pintados como rectángulos azules con borde y chevron blancos.
 - Siguiente paso: selección de elementos con click + highlight visual.
 
 ## Optimizacion de uso de tokens y de contexto
@@ -113,9 +113,12 @@ Algunos alias para workflow humano-ai:
 | Clase | Paquete | Propósito | Relaciones clave |
 |-------|---------|-----------|------------------|
 | `WarGame` | `wargame` | Entry point; arranca la app y lanza `WargameScreen` | Extiende `KtxGame` |
-| `WargameScreen` | `wargame.screen` | Pantalla principal; ciclo render; pinta todos los elementos | Usa `Element`, `InitialElementsFactory`, `ShapeRenderer` |
+| `WargameScreen` | `wargame.screen` | Pantalla principal; crea `GameEngine`, delega render | Usa `GameEngine`, `InitialElementsFactory` |
+| `GameEngine` | `wargame.engine` | Colección de `Actor`s; orquesta el ciclo render con autoShapeType | Itera `List<Actor>` |
+| `Actor` | `wargame.engine` | Interfaz: un objeto renderable recibe `(ShapeRenderer, delta)` | — |
+| `ElementActor` | `wargame.engine` | Renderiza un `Element`: fill azul, borde y chevron blancos | Implementa `Actor`, lee `Element` |
 | `Element` | `wargame.logic` | Datos espaciales de una unidad: posición, ángulo, tamaño | — |
-| `InitialElementsFactory` | `wargame.logic` | Crea el layout inicial de 4 elementos (A aislada, B/C/D en formación) | Produce `List<Element>` |
+| `InitialElementsFactory` | `wargame.logic` | Crea el layout inicial: A aislada, B/C/D en formación flanco a flanco | Produce `List<Element>` |
 
 ## Workflow relativo a tareas y backlog
 Cuando se menciona una nueva tarea, requisito, elemento de backlog, TODO etc:
