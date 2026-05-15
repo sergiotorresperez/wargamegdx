@@ -36,8 +36,10 @@ Dos ejércitos de 60 AP se enfrentan en un tablero de 36"×24". Turno: tirada de
 5. Para saber qué ficheros fuente existen → consulta §ClassMap de este fichero.
 
 ## Estado actual
-- `WargameScreen` + `GameEngine` + `ElementActor` operativos: 4 elementos pintados como rectángulos azules con borde y chevron blancos.
-- Siguiente paso: selección de elementos con click + highlight visual.
+- Geometría + selección operativas: 4 elementos pintados como rectángulos azules, bordes blancos, chevrones blancos.
+- Selección: click selecciona grupo o elemento individual; Ctrl+click añade/quita del grupo validando conectividad; ESC deselecciona.
+- Highlight: elementos seleccionados renderizan con outline amarillo.
+- Siguiente paso: movimiento de elementos individuales y grupos.
 
 ## Optimizacion de uso de tokens y de contexto
 - Es prioritario la minimizacion de uso de tokens. Actua lazily.
@@ -113,12 +115,15 @@ Algunos alias para workflow humano-ai:
 | Clase | Paquete | Propósito | Relaciones clave |
 |-------|---------|-----------|------------------|
 | `WarGame` | `wargame` | Entry point; arranca la app y lanza `WargameScreen` | Extiende `KtxGame` |
-| `WargameScreen` | `wargame.screen` | Pantalla principal; crea `GameEngine`, delega render | Usa `GameEngine`, `InitialElementsFactory` |
+| `WargameScreen` | `wargame.ui` | Pantalla principal; crea `GameEngine`, delega render, maneja input | Usa `GameEngine`, `ElementSelectionSystem` |
 | `GameEngine` | `wargame.engine` | Colección de `Actor`s; `addActor`, `removeActor`, `getActorById<T>`, render con autoShapeType | Itera `List<Actor>` |
 | `Actor` | `wargame.engine` | Interfaz: `id: String` + `render(ShapeRenderer, delta)` | — |
-| `ElementActor` | `wargame.engine` | Renderiza un `Element`: fill azul, borde y chevron blancos | Implementa `Actor`, lee `Element` |
-| `Element` | `wargame.logic` | Datos espaciales de una unidad: posición, ángulo, tamaño | — |
+| `ElementActor` | `wargame.engine` | Renderiza un `Element`: fill azul, borde y chevron blancos, outline amarillo si selected | Implementa `Actor`, lee `Element` |
+| `Element` | `wargame.logic` | Datos espaciales de una unidad: posición, ángulo, tamaño; hit-test con polígono rotado | — |
+| `GameState` | `wargame.logic` | Contenedor: `List<Element>` que representa el estado del tablero | — |
 | `InitialElementsFactory` | `wargame.logic` | Crea el layout inicial: A aislada, B/C/D en formación flanco a flanco | Produce `List<Element>` |
+| `ElementSelectionSystem` | `wargame.ui` | Gestiona selección: click selecciona grupo, Ctrl+click añade/quita validando conectividad | Usa `GroupDetector`, `GameState` |
+| `GroupDetector` | `wargame.logic` | BFS para detección de grupos: `findGroup()`, `isConnectedSubgroup()` | Lee `Element` contacto |
 
 ## Workflow relativo a tareas y backlog
 Cuando se menciona una nueva tarea, requisito, elemento de backlog, TODO etc:
