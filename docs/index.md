@@ -29,10 +29,6 @@ Read this file first. It tells you what every doc contains and where to write ne
 
 ---
 
-## Note on duplicates
-
-`rulesets/` mirrors `docs/game rules/` exactly. The canonical copies are in `docs/game rules/`. Ignore `rulesets/`.
-
 ---
 
 ## Where to add entirely new knowledge
