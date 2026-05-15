@@ -4,7 +4,9 @@
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(./gradlew :core:compileKotlin --no-daemon)",
+      "Bash(./gradlew :core:compileKotlin *)"
     ]
   }
 }

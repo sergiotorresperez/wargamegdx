@@ -1,23 +1,18 @@
-package es.garrapeta.wargame.screen
+package es.garrapeta.wargame.ui
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputAdapter
-import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FitViewport
 import es.garrapeta.wargame.engine.ElementActor
 import es.garrapeta.wargame.engine.GameEngine
 import es.garrapeta.wargame.logic.Element
-import es.garrapeta.wargame.logic.ElementSelectionSystem
 import es.garrapeta.wargame.logic.GameState
 import es.garrapeta.wargame.logic.InitialElementsFactory
-import es.garrapeta.wargame.logic.SelectionState
 import ktx.app.KtxScreen
 
 private const val BATTLEFIELD_WIDTH: Float = 36f
@@ -75,23 +70,6 @@ class WargameScreen : KtxScreen {
 
         // element bodies, borders, chevrons and per-element selection outline — via GameEngine
         engine.render(shapeRenderer = shapeRenderer, delta = delta)
-
-        // group bounding box spans multiple actors, rendered here separately
-        val selection = selectionSystem.selectionState
-        if (selection is SelectionState.GroupSelection) {
-            Gdx.gl.glEnable(GL20.GL_BLEND)
-            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
-            shapeRenderer.begin(ShapeType.Filled)
-            shapeRenderer.color = Color(1f, 1f, 0f, 0.15f)
-            drawGroupBoundingBox(selection.elements)
-            shapeRenderer.end()
-            Gdx.gl.glDisable(GL20.GL_BLEND)
-
-            shapeRenderer.begin(ShapeType.Line)
-            shapeRenderer.color = Color.YELLOW
-            drawGroupBoundingBox(selection.elements)
-            shapeRenderer.end()
-        }
     }
 
     override fun resize(width: Int, height: Int) {
@@ -102,15 +80,11 @@ class WargameScreen : KtxScreen {
         shapeRenderer.dispose()
     }
 
-    /** Pushes current SelectionState into each ElementActor's isSelected flag. */
+    /** Pushes selectedElements into each ElementActor's isSelected flag. */
     private fun syncSelectionToActors() {
-        val selection = selectionSystem.selectionState
+        val selected: List<Element> = selectionSystem.selectedElements
         engine.actors.filterIsInstance<ElementActor>().forEach { actor ->
-            actor.isSelected = when (selection) {
-                is SelectionState.None           -> false
-                is SelectionState.Individual     -> actor.element == selection.element
-                is SelectionState.GroupSelection -> actor.element in selection.elements
-            }
+            actor.isSelected = actor.element in selected
         }
     }
 

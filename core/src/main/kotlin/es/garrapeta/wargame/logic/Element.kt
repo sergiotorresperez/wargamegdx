@@ -1,7 +1,7 @@
 package es.garrapeta.wargame.logic
 
-import com.badlogic.gdx.math.Intersector
 import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Polygon
 import com.badlogic.gdx.math.Vector2
 
 const val BASE_WIDTH: Float = 1.6f  // 1 BW in inches (40 mm at 15 mm scale)
@@ -46,14 +46,10 @@ class Element(
     // --- hit detection ---
 
     /** True if [point] falls inside the element's rotated rectangle. */
-    fun contains(point: Vector2): Boolean {
-        val fl = frontLeft; val fr = frontRight
-        val rr = rearRight; val rl = rearLeft
-        return Intersector.isPointInPolygon(
-            floatArrayOf(fl.x, fl.y, fr.x, fr.y, rr.x, rr.y, rl.x, rl.y),
-            0, 4, point.x, point.y,
-        )
-    }
+    fun contains(point: Vector2): Boolean =
+        Polygon(floatArrayOf(frontLeft.x, frontLeft.y, frontRight.x, frontRight.y,
+                             rearRight.x, rearRight.y, rearLeft.x, rearLeft.y))
+            .contains(point.x, point.y)
 
     // --- private helpers ---
 

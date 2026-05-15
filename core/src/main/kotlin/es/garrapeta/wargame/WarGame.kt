@@ -1,6 +1,6 @@
 package es.garrapeta.wargame
 
-import es.garrapeta.wargame.screen.WargameScreen
+import es.garrapeta.wargame.ui.WargameScreen
 import ktx.app.KtxGame
 import ktx.app.KtxScreen
 

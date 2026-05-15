@@ -31,6 +31,22 @@ object GroupDetector {
         return if (visited.size > 1) visited.toList() else null
     }
 
+    /**
+     * True if every element in [elements] is reachable from the first via group contact
+     * edges that stay within [elements]. Used to validate a proposed sub-selection.
+     */
+    fun isConnectedSubgroup(elements: List<Element>): Boolean {
+        if (elements.size <= 1) return true
+        val visited = mutableSetOf(elements.first())
+        val queue = ArrayDeque<Element>().also { it.add(elements.first()) }
+        while (queue.isNotEmpty()) {
+            val current = queue.removeFirst()
+            elements.filter { it !in visited && inGroupContact(current, it) }
+                .forEach { visited.add(it); queue.add(it) }
+        }
+        return visited.size == elements.size
+    }
+
     /** True if [a] and [b] face the same direction and touch on a valid edge pair. */
     private fun inGroupContact(a: Element, b: Element): Boolean =
         angleDiff(a.angleDeg, b.angleDeg) <= ANGLE_EPSILON && (
