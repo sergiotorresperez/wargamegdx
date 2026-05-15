@@ -36,8 +36,8 @@ Dos ejércitos de 60 AP se enfrentan en un tablero de 36"×24". Turno: tirada de
 5. Para saber qué ficheros fuente existen → consulta §ClassMap de este fichero.
 
 ## Estado actual
-- Código: solo `WarGame.kt` (esqueleto vacío). Aún no hay pantallas ni lógica.
-- Siguiente paso: implementar MVP — selección y movimiento de unidades.
+- `WargameScreen` pinta 4 elementos (A aislada, B/C/D en formación) como rectángulos azules con borde y chevron blancos.
+- Siguiente paso: selección de elementos con click + highlight visual.
 
 ## Optimizacion de uso de tokens y de contexto
 - Es prioritario la minimizacion de uso de tokens. Actua lazily.
@@ -110,9 +110,12 @@ Algunos alias para workflow humano-ai:
 
 ## ClassMap
 
-| Clase | Propósito | Relaciones clave |
-|-------|-----------|------------------|
-| `WarGame` | Entry point; crea y gestiona la Screen activa | Extiende `Game` |
+| Clase | Paquete | Propósito | Relaciones clave |
+|-------|---------|-----------|------------------|
+| `WarGame` | `wargame` | Entry point; arranca la app y lanza `WargameScreen` | Extiende `KtxGame` |
+| `WargameScreen` | `wargame.screen` | Pantalla principal; ciclo render; pinta todos los elementos | Usa `Element`, `InitialElementsFactory`, `ShapeRenderer` |
+| `Element` | `wargame.logic` | Datos espaciales de una unidad: posición, ángulo, tamaño | — |
+| `InitialElementsFactory` | `wargame.logic` | Crea el layout inicial de 4 elementos (A aislada, B/C/D en formación) | Produce `List<Element>` |
 
 ## Workflow relativo a tareas y backlog
 Cuando se menciona una nueva tarea, requisito, elemento de backlog, TODO etc:
