@@ -25,7 +25,6 @@ Read this file first. It tells you what every doc contains and where to write ne
 | `docs/tech docs/scene2d_guide.md` | Scene2D guide: Actor, Stage, Group, Action, Event, Skin, Widgets (Spanish) | — reference |
 | `docs/tech docs/ashley_guide.md` | Ashley ECS guide: Entity, Component, System, Engine (Spanish) | — reference |
 | `docs/tech docs/artemis_guide.md` | Artemis-ODB ECS guide: more advanced than Ashley; Aspect, Manager, DI (Spanish) | — reference |
-| `docs/tech docs/hybrid_guide.md` | Hybrid OOP+components architecture guide; comparison of all paradigms (Spanish) | — reference |
 
 ---
 
