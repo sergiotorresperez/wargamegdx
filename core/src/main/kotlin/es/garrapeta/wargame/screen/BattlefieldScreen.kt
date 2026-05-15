@@ -56,13 +56,15 @@ class WargameScreen : KtxScreen {
     private fun drawBody(element: Element) {
         val halfW: Float = element.width / 2f
         val halfD: Float = element.depth / 2f
+        // Local X = forward (depth), local Y = side (width), then rotate by angleDeg.
+        // This way width (front/rear edge) ends up perpendicular to facing after rotation.
         shapeRenderer.rect(
-            element.position.x - halfW, // bottom-left x of un-rotated rect
-            element.position.y - halfD, // bottom-left y of un-rotated rect
-            halfW,                      // originX: pivot at center
-            halfD,                      // originY: pivot at center
-            element.width,
+            element.position.x - halfD, // bottom-left x of un-rotated rect
+            element.position.y - halfW, // bottom-left y of un-rotated rect
+            halfD,                      // originX: pivot at center
+            halfW,                      // originY: pivot at center
             element.depth,
+            element.width,
             1f, 1f,
             element.angleDeg,
         )
@@ -74,10 +76,10 @@ class WargameScreen : KtxScreen {
 
         // border (same rect as body, line mode)
         shapeRenderer.rect(
-            element.position.x - halfW,
-            element.position.y - halfD,
-            halfW, halfD,
-            element.width, element.depth,
+            element.position.x - halfD,
+            element.position.y - halfW,
+            halfD, halfW,
+            element.depth, element.width,
             1f, 1f,
             element.angleDeg,
         )
