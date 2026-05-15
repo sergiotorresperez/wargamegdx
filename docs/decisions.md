@@ -17,7 +17,9 @@ This file records decisions that have been made, the reasoning behind them, and 
 9. [Close-door destination](#9-close-door-destination)
 10. [Contact tolerance](#10-contact-tolerance)
 11. [Facing adjustment timing](#11-facing-adjustment-timing)
-12. [Open questions](#12-open-questions)
+12. [Architecture: game logic vs rendering](#12-architecture-game-logic-vs-rendering)
+13. [ElementActor wraps GameElement](#13-elementactor-wraps-gameelement)
+14. [Open questions](#14-open-questions)
 
 ---
 
@@ -176,7 +178,86 @@ It is **not** part of the movement cost calculation. It is a free rotation that 
 
 ---
 
-## 12. Open questions
+## 12. Architecture: game logic vs rendering
+
+**Decision**: game logic, rules, and geometry are strictly separated from rendering and game-loop concerns. Neither layer depends on the other.
+
+### The boundary
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  LOGIC LAYER  (pure Kotlin, zero libGDX rendering deps)     │
+│                                                             │
+│  GameElement      — data: position, angle, width, depth     │
+│  GameWorld        — state: element list, turn, selection    │
+│  ContactDetector  — front / flank / rear / overlap checks   │
+│  CollisionDetector— swept-path and gap checks               │
+│  ZoneOfControl    — ZOC shape and containment               │
+│  SingleMoveValidator — validates individual moves           │
+│  GroupFormation   — group / column detection and pivot math │
+│  CloseDoorMove    — cerrar la puerta detection + dest.      │
+│  CutCornerDetector— one-corner path crossing check          │
+└─────────────────────────────────────────────────────────────┘
+           ▲ reads from / calls into
+┌─────────────────────────────────────────────────────────────┐
+│  RENDERING / ENGINE LAYER  (libGDX, ShapeRenderer, Stage)   │
+│                                                             │
+│  ElementActor     — wraps GameElement; knows how to draw it │
+│  WorldScene       — list of WorldActors; update + render    │
+│  GameScreen       — libGDX Screen; orchestrates the loop    │
+│  Stage            — Scene2D UI (buttons, labels)            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Rules
+- The logic layer has **no imports from `com.badlogic.gdx.graphics`** or any rendering package. It may use `com.badlogic.gdx.math` (Vector2, Polygon, Intersector, MathUtils) because those are pure math utilities with no rendering dependency.
+- The rendering layer reads from the logic layer but **never writes game state directly**. Mutations go through `GameWorld` methods.
+- Game rules (movement validation, contact detection, etc.) are never computed inside `render()` or `act()` calls. They are computed in response to **input events** and their results cached in game state.
+
+### Render loop shape
+
+```kotlin
+// GameScreen.render(delta)
+camera.update()
+worldScene.update(delta)           // actors update their visual state
+worldScene.render(shapeRenderer, camera)  // actors draw themselves
+uiStage.act(delta)
+uiStage.draw()
+```
+
+---
+
+## 13. ElementActor wraps GameElement
+
+**Decision**: `ElementActor` is the primary game-object class. It **owns** and **wraps** a `GameElement`.
+
+```kotlin
+class ElementActor(val element: GameElement) : WorldActor() {
+    // visual-only state (animations, highlight, etc.)
+    override fun update(delta: Float) { /* update visual state */ }
+    override fun render(sr: ShapeRenderer) { /* draw element */ }
+}
+```
+
+**Rationale**:
+- `ElementActor` is the live object in the scene. Adding an element to the game means creating an `ElementActor` and adding it to `WorldScene`.
+- `GameElement` is pure data + geometry. It doesn't know it's being rendered.
+- Other actors (ZocActor, SelectionActor, GhostActor) may hold a **reference** to an `ElementActor` (or its inner `GameElement`) to derive their position/shape, but they do not own it.
+- `GameWorld` holds references to `GameElement` objects (the model). `WorldScene` holds `ElementActor` objects (the view). They stay in sync because `ElementActor.element` is the same object instance that `GameWorld` holds — not a copy.
+
+### Actor catalogue (current scope)
+
+| Actor | Owns | Draws |
+|---|---|---|
+| `ElementActor` | `GameElement` | element base, facing arrow, faction colour |
+| `ZocActor` | ref to `ElementActor` | ZOC rectangle (semi-transparent) |
+| `SelectionActor` | ref to selected `ElementActor` | move-range circle, selection outline |
+| `GhostActor` | proposed `GameElement` state | ghost (translucent) preview of move destination |
+| `ContactIndicatorActor` | refs to two `ElementActor`s | colour-coded contact line |
+
+---
+
+## 14. Open questions
 
 | # | Question | Status |
 |---|---|---|
