@@ -53,7 +53,7 @@ class Element(
 
     // --- private helpers ---
 
-    private fun corner(fwdSign: Float, rgtSign: Float): Vector2 {
+    internal fun corner(fwdSign: Float, rgtSign: Float): Vector2 {
         val halfD = depth / 2f
         val halfW = width / 2f
         // right = (sinDeg, -cosDeg) = (fwdY, -fwdX) — avoids a second trig call
