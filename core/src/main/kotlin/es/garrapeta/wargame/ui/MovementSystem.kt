@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import es.garrapeta.wargame.logic.Element
 import es.garrapeta.wargame.logic.GameState
+import es.garrapeta.wargame.logic.SnapDetector
 
 class MovementSystem(
     private val gameState: GameState,
@@ -57,6 +58,9 @@ class MovementSystem(
             element.position.x += dx
             element.position.y += dy
         }
+        // detect snaps for the dragged element (only single-element drag)
+        val targets: List<Element> = gameState.elements.filter { it.id != movement.originals.first().id }
+        movement.snaps = SnapDetector.findSnaps(movement.previews.first(), targets)
         movement.activeOp = MovementOp.DragAndDrop(lastWorldPos = worldPos)
         return true
     }
@@ -201,6 +205,7 @@ class MovementSystem(
         val originals: List<Element>,  // original references, mutated only on confirm
         val previews: List<Element>,   // deep copies, updated freely during movement
         var activeOp: MovementOp = MovementOp.None,
+        var snaps: List<Snap> = emptyList(),  // potential snaps detected during movement
     )
 
     private fun Element.deepCopy(): Element = Element(
