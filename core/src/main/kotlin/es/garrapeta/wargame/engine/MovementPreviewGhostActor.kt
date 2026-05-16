@@ -13,7 +13,6 @@ class MovementPreviewGhostActor(
 
     companion object {
         const val ACTOR_ID = "MovementPreviewGhostActor"
-        const val SNAP_VISUALIZATION_THRESHOLD: Float = 0.25f  // inches
     }
     override val id: String get() = ACTOR_ID
 
@@ -41,23 +40,15 @@ class MovementPreviewGhostActor(
 
         // visualize all potential snaps
         paintSnapRectangles(shapeRenderer)
-        paintSnapLines(shapeRenderer)
-        paintSnapPoints(shapeRenderer)
     }
 
     private fun paintSnapRectangles(shapeRenderer: ShapeRenderer) {
-        val visibleSnaps = ongoingMovement.snaps.filter { it.distance < SNAP_VISUALIZATION_THRESHOLD }
-        if (visibleSnaps.isEmpty()) return
+        if (ongoingMovement.snaps.isEmpty()) return
 
-        visibleSnaps.forEachIndexed { index, snap ->
-            shapeRenderer.set(ShapeType.Filled)
-            // closest snap (index 0) in cyan; others in yellow
-            val isClosest: Boolean = index == 0
-            shapeRenderer.color = if (isClosest) {
-                Color(0f, 1f, 1f, 0.2f)  // cyan, 20% alpha
-            } else {
-                Color(1f, 1f, 0f, 0.1f)  // yellow, 10% alpha
-            }
+        ongoingMovement.snaps.forEach { snap ->
+            shapeRenderer.set(ShapeType.Point)
+
+            shapeRenderer.color = Color(0f, 1f, 1f, 1f)
 
             val halfW: Float = snap.element.width / 2f
             val halfD: Float = snap.element.depth / 2f
@@ -72,49 +63,5 @@ class MovementPreviewGhostActor(
         }
     }
 
-    private fun paintSnapLines(shapeRenderer: ShapeRenderer) {
-        val visibleSnaps = ongoingMovement.snaps.filter { it.distance < SNAP_VISUALIZATION_THRESHOLD }
-        if (visibleSnaps.isEmpty()) return
-
-        shapeRenderer.set(ShapeType.Line)
-
-        visibleSnaps.forEachIndexed { index, snap ->
-            val isClosest: Boolean = index == 0
-            shapeRenderer.color = if (isClosest) {
-                Color(0f, 1f, 1f, 0.6f)  // cyan, 60% alpha
-            } else {
-                Color(1f, 1f, 0f, 0.3f)  // yellow, 30% alpha
-            }
-
-            val myCornerPos = snap.element.getCorner(snap.snapType.myCorner)
-            val theirCornerPos = snap.target.getCorner(snap.snapType.theirCorner)
-
-            shapeRenderer.line(myCornerPos.x, myCornerPos.y, theirCornerPos.x, theirCornerPos.y)
-        }
-    }
-
-    private fun paintSnapPoints(shapeRenderer: ShapeRenderer) {
-        val visibleSnaps = ongoingMovement.snaps.filter { it.distance < SNAP_VISUALIZATION_THRESHOLD }
-        if (visibleSnaps.isEmpty()) return
-
-        shapeRenderer.set(ShapeType.Filled)
-        val pointRadius: Float = 0.1f  // small circle
-
-        visibleSnaps.forEachIndexed { index, snap ->
-            val isClosest: Boolean = index == 0
-            shapeRenderer.color = if (isClosest) {
-                Color(0f, 1f, 1f, 0.8f)  // cyan, 80% alpha
-            } else {
-                Color(1f, 1f, 0f, 0.5f)  // yellow, 50% alpha
-            }
-
-            val myCornerPos = snap.element.getCorner(snap.snapType.myCorner)
-            val theirCornerPos = snap.target.getCorner(snap.snapType.theirCorner)
-
-            // draw circles at both corners
-            shapeRenderer.circle(myCornerPos.x, myCornerPos.y, pointRadius)
-            shapeRenderer.circle(theirCornerPos.x, theirCornerPos.y, pointRadius)
-        }
-    }
 
 }

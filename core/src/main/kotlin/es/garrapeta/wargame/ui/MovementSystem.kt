@@ -22,7 +22,7 @@ class MovementSystem(
 
         private const val TRANSLATION_INCREMENT_IN: Float = 0.2f  // inches per keypress
         private const val ROTATION_INCREMENT_DEG: Float = 5f       // degrees per keypress
-        private const val SNAP_THRESHOLD: Float = 0.25f           // inches; snaps beyond this are filtered out
+        private const val SNAP_THRESHOLD: Float = 1f           // inches; snaps beyond this are filtered out
     }
 
     private var ongoingMovement: OngoingMovement? = null
