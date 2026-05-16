@@ -30,6 +30,10 @@ class ElementSelectionSystem(
         return true
     }
 
+    fun keyDown(keyDown: Int): Boolean {
+        return false
+    }
+
     /** Call with the world-space click position and whether Ctrl was held. */
     private fun handleClick(worldPos: Vector2, ctrlHeld: Boolean) {
         val hit: Element? = gameState.elements.firstOrNull { it.contains(worldPos) }

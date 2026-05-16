@@ -1,17 +1,19 @@
 package es.garrapeta.wargame.ui
 
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.math.Vector2
 import es.garrapeta.wargame.logic.Element
 import es.garrapeta.wargame.logic.GameState
-import es.garrapeta.wargame.logic.GroupDetector
 
 class MovementSystem(
     private val gameState: GameState,
     private val onMovementStarted: ((OngoingMovement) -> Unit),
     private val onMovementFinished: (() -> Unit)
 ) {
+
+    companion object {
+        private const val TRANSLATION_INCREMENT: Float = 0.2f  // inches per keypress
+    }
 
     private var ongoingMovement: OngoingMovement? = null
 
@@ -41,17 +43,51 @@ class MovementSystem(
             tempElement.contains(worldPos)
         }
 
-        if (!hitInsideSelection) {
-            ongoingMovement = null
-            onMovementFinished()
-            return false
+        if (hitInsideSelection) {
+            onMovementConfirmed(movement)
+        }  else {
+            onMovementCanceled()
         }
 
         return true
     }
 
+    fun keyDown(keycode: Int): Boolean {
+        val translationDelta = when (keycode) {
+            Input.Keys.UP -> TRANSLATION_INCREMENT
+            Input.Keys.DOWN -> -TRANSLATION_INCREMENT
+            else -> null
+        }
+
+        val movement = ongoingMovement
+
+        return if (movement != null && translationDelta != null) {
+            onTranslate(movement, translationDelta)
+            true
+        } else {
+            false
+        }
+    }
+
+    private fun onTranslate(movement: OngoingMovement, delta: Float) {
+        // TODO: this is wrong if the facing has changed
+        movement.translation += delta
+    }
+
+    private fun onMovementConfirmed(movement: OngoingMovement) {
+        movement.selected.forEach { element ->
+            element.position.y += movement.translation
+        }
+        onMovementFinished()
+    }
+
+    private fun onMovementCanceled() {
+        onMovementFinished()
+        ongoingMovement = null
+    }
+
     data class OngoingMovement(
         val selected: List<Element>,
-        val translation: Float = 0f
+        var translation: Float = 0f
     )
 }

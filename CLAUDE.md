@@ -39,8 +39,8 @@ Dos ejércitos de 60 AP se enfrentan en un tablero de 36"×24". Turno: tirada de
 - Geometría + selección operativas: 4 elementos pintados como rectángulos azules, bordes blancos, chevrones blancos.
 - Selección: click selecciona grupo o elemento individual; Ctrl+click añade/quita del grupo validando conectividad.
 - Highlight: elementos seleccionados renderizan con outline amarillo.
-- Movimiento en desarrollo: `MovementSystem` gestiona estado activo + offsets; `MovementPreviewGhostActor` renderiza previsualizaciones translúcidas (offset aplicado); finalización al click fuera.
-- Siguiente paso: input para ajustar offsets (drag, Ctrl+drag) y confirmar movimiento.
+- Movimiento operativo: Up/Down ajustan `translation`; click dentro confirma (posiciones actualizadas); click fuera cancela. Ghost preview se renderiza durante el movimiento.
+- Siguiente paso: drag para movimiento libre (translate + pivot).
 
 ## Optimizacion de uso de tokens y de contexto
 - Es prioritario la minimizacion de uso de tokens. Actua lazily.
@@ -126,7 +126,7 @@ Algunos alias para workflow humano-ai:
 | `InitialElementsFactory` | `wargame.logic` | Crea el layout inicial: A aislada, B/C/D en formación flanco a flanco | Produce `List<Element>` |
 | `ElementSelectionSystem` | `wargame.ui` | Gestiona selección: click selecciona grupo, Ctrl+click añade/quita validando conectividad; observable con callback on change | Usa `GroupDetector`, `GameState`; callback a `WargameScreen` |
 | `GroupDetector` | `wargame.logic` | BFS para detección de grupos: `findGroup()`, `isConnectedSubgroup()` | Lee `Element` contacto |
-| `MovementSystem` | `wargame.ui` | Gestiona movimiento activo: `OngoingMovement` con selección + translation offset; callbacks on start/finish | Usa `GameState`, `Element`; callbacks a `WargameScreen` |
+| `MovementSystem` | `wargame.ui` | Gestiona movimiento activo: Up/Down ajustan `translation`; click confirma (aplica offset a posiciones) o cancela | Usa `Element`; callbacks `onMovementStarted/Finished` a `WargameScreen` |
 | `MovementPreviewGhostActor` | `wargame.engine` | Renderiza rectángulos blancos translúcidos (30% alpha) en posiciones offset para cada elemento seleccionado | Implementa `Actor`, lee `OngoingMovement` |
 
 ## Workflow relativo a tareas y backlog

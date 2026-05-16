@@ -55,6 +55,10 @@ class WargameScreen : KtxScreen {
             override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
                 return onTouchDown(screenX, screenY, pointer, button)
             }
+
+            override fun keyDown(keycode: Int): Boolean {
+                return onKeyDown(keycode = keycode)
+            }
         }
     }
 
@@ -81,6 +85,14 @@ class WargameScreen : KtxScreen {
             true
         } else {
             selectionSystem.touchDown(worldPos = worldPos, button = button)
+        }
+    }
+
+    private fun onKeyDown(keycode: Int): Boolean {
+        return if (movementSystem.keyDown(keycode)) {
+            true
+        } else {
+            selectionSystem.keyDown(keyDown = keycode)
         }
     }
 
