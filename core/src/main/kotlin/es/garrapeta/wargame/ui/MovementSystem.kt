@@ -22,6 +22,7 @@ class MovementSystem(
 
         private const val TRANSLATION_INCREMENT_IN: Float = 0.2f  // inches per keypress
         private const val ROTATION_INCREMENT_DEG: Float = 5f       // degrees per keypress
+        private const val SNAP_THRESHOLD: Float = 0.25f           // inches; snaps beyond this are filtered out
     }
 
     private var ongoingMovement: OngoingMovement? = null
@@ -130,13 +131,6 @@ class MovementSystem(
         }
     }
 
-    private fun updateSnaps(movement: OngoingMovement) {
-        // detect snaps for single-element movements only
-        if (movement.originals.size == 1) {
-            val targets: List<Element> = gameState.elements.filter { it.id != movement.originals.first().id }
-            movement.snaps = SnapDetector.findSnaps(movement.previews.first(), targets)
-        }
-    }
 
     private fun translate(movement: OngoingMovement, delta: Float) {
         movement.previews.forEach { element ->
@@ -186,6 +180,15 @@ class MovementSystem(
             element.angleDeg += deltaDeg
         }
         updateSnaps(movement = movement)
+    }
+
+    private fun updateSnaps(movement: OngoingMovement) {
+        // detect snaps for single-element movements only
+        if (movement.originals.size == 1) {
+            val targets: List<Element> = gameState.elements.filter { it.id != movement.originals.first().id }
+            val allSnaps: List<Snap> = SnapDetector.findSnaps(movement.previews.first(), targets)
+            movement.snaps = allSnaps.filter { it.distance < SNAP_THRESHOLD }
+        }
     }
 
     private fun onMovementConfirmed(movement: OngoingMovement) {
