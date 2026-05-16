@@ -9,15 +9,15 @@ import es.garrapeta.wargame.logic.GameState
 class MovementSystem(
     private val gameState: GameState,
     private val onMovementStarted: ((OngoingMovement) -> Unit),
-    private val onMovementFinished: (() -> Unit)
+    private val onMovementStopped: (() -> Unit)
 ) {
 
     companion object {
-        private const val INPUT_FORWARD    = Input.Keys.UP
-        private const val INPUT_LEFT     = Input.Keys.LEFT
-        private const val INPUT_RIGHT    = Input.Keys.RIGHT
-        private const val INPUT_CONFIRM         = Input.Keys.ENTER
-        private const val INPUT_CANCEL          = Input.Keys.ESCAPE
+        private const val INPUT_FORWARD = Input.Keys.UP
+        private const val INPUT_LEFT = Input.Keys.LEFT
+        private const val INPUT_RIGHT = Input.Keys.RIGHT
+        private const val INPUT_CONFIRM = Input.Keys.ENTER
+        private const val INPUT_CANCEL = Input.Keys.ESCAPE
 
         private const val TRANSLATION_INCREMENT_IN: Float = 0.2f  // inches per keypress
         private const val ROTATION_INCREMENT_DEG: Float = 5f       // degrees per keypress
@@ -26,13 +26,17 @@ class MovementSystem(
     private var ongoingMovement: OngoingMovement? = null
 
     fun startMovement(selected: List<Element>) {
-        if (ongoingMovement != null) {
-            onMovementCanceled()
-        }
         ongoingMovement = OngoingMovement(
             originals = selected,
             previews = selected.map { it.deepCopy() },
         ).also { onMovementStarted(it) }
+    }
+
+    fun stopMovement() {
+        if (ongoingMovement != null) {
+            ongoingMovement = null
+            onMovementStopped()
+        }
     }
 
     fun touchDown(worldPos: Vector2, button: Int): Boolean {
@@ -45,40 +49,61 @@ class MovementSystem(
 
         return when (keycode) {
             INPUT_FORWARD -> {
-                onTranslate(movement = movement, delta = +TRANSLATION_INCREMENT_IN)
+                movement.activeOp = MovementOp.TRANSLATE
+                translate(movement = movement, delta = +TRANSLATION_INCREMENT_IN)
                 true
             }
-            INPUT_LEFT if isGroupMovement -> {
-                onPivotLeft(movement = movement, deltaDeg = +ROTATION_INCREMENT_DEG)
-                true
-            }
-            INPUT_RIGHT if isGroupMovement -> {
-                applyPivotRight(movement = movement)
-                true
-            }
+
             INPUT_LEFT -> {
-                onRotate(movement = movement, deltaDeg = +ROTATION_INCREMENT_DEG)
+                if (!isGroupMovement) {
+                    movement.activeOp = MovementOp.ROTATE
+                    onRotate(movement = movement, deltaDeg = -ROTATION_INCREMENT_DEG)
+                } else {
+                    if (movement.activeOp != MovementOp.PIVOT_RIGHT) {
+                        movement.activeOp = MovementOp.PIVOT_LEFT
+                        onPivotLeft(movement = movement, deltaDeg = +ROTATION_INCREMENT_DEG)
+                    } else {
+                        onPivotRight(movement = movement, deltaDeg = +ROTATION_INCREMENT_DEG)
+                    }
+                }
                 true
             }
+
             INPUT_RIGHT -> {
-                onRotate(movement = movement, deltaDeg = -ROTATION_INCREMENT_DEG)
+                if (!isGroupMovement) {
+                    movement.activeOp = MovementOp.ROTATE
+                    onRotate(movement = movement, deltaDeg = +ROTATION_INCREMENT_DEG)
+                } else {
+                    if (movement.activeOp != MovementOp.PIVOT_LEFT) {
+                        movement.activeOp = MovementOp.PIVOT_RIGHT
+                        onPivotRight(movement = movement, deltaDeg = -ROTATION_INCREMENT_DEG)
+                    } else {
+                        onPivotLeft(movement = movement, deltaDeg = -ROTATION_INCREMENT_DEG)
+                    }
+                }
                 true
             }
+
             INPUT_CONFIRM -> {
+                movement.activeOp = MovementOp.NONE
                 onMovementConfirmed(movement)
                 true
             }
+
             INPUT_CANCEL -> {
-                onMovementCanceled()
+                movement.activeOp = MovementOp.NONE
+                onMovementCanceled(movement)
                 true
             }
+
             else -> {
+                movement.activeOp = MovementOp.NONE
                 false
             }
         }
     }
 
-    private fun onTranslate(movement: OngoingMovement, delta: Float) {
+    private fun translate(movement: OngoingMovement, delta: Float) {
         movement.previews.forEach { element ->
             val fwd = element.forward
             element.position.x += fwd.x * delta
@@ -92,15 +117,7 @@ class MovementSystem(
         }
     }
 
-    private fun applyPivotRight(movement: OngoingMovement) {
-        if (movement.activeOp == MovementOp.PIVOT_LEFT)
-            onPivotLeft(movement = movement, deltaDeg = -ROTATION_INCREMENT_DEG)
-        else
-            onPivotRight(movement = movement, deltaDeg = -ROTATION_INCREMENT_DEG)
-    }
-
     private fun onPivotLeft(movement: OngoingMovement, deltaDeg: Float) {
-        movement.activeOp = MovementOp.PIVOT_LEFT
         // pivot point = the frontLeft corner most to the left across all previews
         val right: Vector2 = movement.previews.first().right
         val pivot: Vector2 = movement.previews.minBy { it.frontLeft.dot(right) }.frontLeft
@@ -117,7 +134,6 @@ class MovementSystem(
     }
 
     private fun onPivotRight(movement: OngoingMovement, deltaDeg: Float) {
-        movement.activeOp = MovementOp.PIVOT_RIGHT
         // pivot point = the frontRight corner most to the right across all previews
         val right: Vector2 = movement.previews.first().right
         val pivot: Vector2 = movement.previews.maxBy { it.position.dot(right) }.frontRight
@@ -139,16 +155,15 @@ class MovementSystem(
             original.position.set(preview.position)
             original.angleDeg = preview.angleDeg
         }
-        ongoingMovement = null
-        onMovementFinished()
+        stopMovement()
     }
 
-    private fun onMovementCanceled() {
-        ongoingMovement = null
-        onMovementFinished()
+    private fun onMovementCanceled(movement: OngoingMovement) {
+        stopMovement()
+        startMovement(movement.originals)
     }
 
-    enum class MovementOp { NONE, PIVOT_LEFT, PIVOT_RIGHT }
+    enum class MovementOp { NONE, TRANSLATE, ROTATE, PIVOT_LEFT, PIVOT_RIGHT }
 
     data class OngoingMovement(
         val originals: List<Element>,  // original references, mutated only on confirm
