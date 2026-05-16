@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FitViewport
 import es.garrapeta.wargame.engine.ElementActor
 import es.garrapeta.wargame.engine.GameEngine
+import es.garrapeta.wargame.engine.MovementPreviewGhostActor
 import es.garrapeta.wargame.logic.Element
 import es.garrapeta.wargame.logic.GameState
 import es.garrapeta.wargame.logic.InitialElementsFactory
@@ -35,7 +36,7 @@ class WargameScreen : KtxScreen {
     private val movementSystem = MovementSystem(
         gameState = gameState,
         onMovementStarted = ::onMovementStarted,
-        onMovementFinished = {  },
+        onMovementFinished = ::onMovementFinished
     )
 
     // rendering
@@ -92,10 +93,10 @@ class WargameScreen : KtxScreen {
     }
 
     private fun onMovementStarted(ongoingMovement: MovementSystem.OngoingMovement) {
-
+        engine.addActor(MovementPreviewGhostActor(ongoingMovement = ongoingMovement))
     }
 
     private fun onMovementFinished() {
-
+        engine.removeActorById(MovementPreviewGhostActor.ACTOR_ID)
     }
 }

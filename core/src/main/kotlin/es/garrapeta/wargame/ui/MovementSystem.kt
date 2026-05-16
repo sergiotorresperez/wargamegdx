@@ -23,18 +23,35 @@ class MovementSystem(
     }
 
     fun touchDown(worldPos: Vector2, button: Int): Boolean {
-        val consumed = ongoingMovement
-            ?.let {
-                true
-            }
-            ?: run {
-                false
-            }
-        return consumed
+        val movement = ongoingMovement ?: return false
+
+        val hitInsideSelection = movement.selected.any { element ->
+            val fwd = element.forward
+            val offsetX = fwd.x * movement.translation
+            val offsetY = fwd.y * movement.translation
+            val offsetPos = Vector2(element.position.x + offsetX, element.position.y + offsetY)
+
+            val tempElement = Element(
+                id = element.id,
+                position = offsetPos,
+                angleDeg = element.angleDeg,
+                width = element.width,
+                depth = element.depth
+            )
+            tempElement.contains(worldPos)
+        }
+
+        if (!hitInsideSelection) {
+            ongoingMovement = null
+            onMovementFinished()
+            return false
+        }
+
+        return true
     }
 
     data class OngoingMovement(
-        private val selected: List<Element>,
-        private val translation: Float = 0f
+        val selected: List<Element>,
+        val translation: Float = 0f
     )
 }

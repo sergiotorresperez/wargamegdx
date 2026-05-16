@@ -9,10 +9,13 @@ class GameEngine {
 
     fun addActor(actor: Actor) { actors.add(actor) }
 
-    fun removeActor(actor: Actor) { actors.remove(actor) }
 
     inline fun <reified T : Actor> getActorById(id: String): T? =
         actors.filterIsInstance<T>().find { it.id == id }
+
+    fun removeActor(actor: Actor) { actors.remove(actor) }
+
+    fun removeActorById(id: String) { actors.removeIf { id == it.id } }
 
     fun render(shapeRenderer: ShapeRenderer, delta: Float) {
         shapeRenderer.setAutoShapeType(true)
