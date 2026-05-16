@@ -19,7 +19,9 @@ This file records decisions that have been made, the reasoning behind them, and 
 11. [Facing adjustment timing](#11-facing-adjustment-timing)
 12. [Architecture: game logic vs rendering](#12-architecture-game-logic-vs-rendering)
 13. [ElementActor wraps GameElement](#13-elementactor-wraps-gameelement)
-14. [Open questions](#14-open-questions)
+14. [Rendering an element with ShapeRenderer](#14-rendering-an-element-with-shaperenderer)
+15. [Architecture: input systems](#15-architecture-input-systems)
+16. [Open questions](#16-open-questions)
 
 ---
 
@@ -299,7 +301,58 @@ Chevron and corner computations use the decisions §5 formula directly (forward 
 
 ---
 
-## 15. Open questions
+## 15. Architecture: input systems
+
+Input follows a **chain-of-responsibility** pattern: `BattlefieldScreen` is the sole dispatcher; each system declares its interest by returning `true` (consumed) or `false` (pass through).
+
+### Dispatch flow
+
+```
+libGDX InputAdapter
+    └─ touchDown(screenX, screenY, pointer, button)
+           │  convert screen → world coords
+           ▼
+    BattlefieldScreen.onTouchDown(worldPos, button)
+           ├─ selectionSystem.touchDown(worldPos, button)  ← priority 1
+           └─ movementSystem.touchDown(worldPos, button)   ← priority 2 (only if 1 returns false)
+
+    └─ keyDown(keycode)
+    BattlefieldScreen.onKeyDown(keycode)
+           ├─ selectionSystem.keyDown(keycode)   ← priority 1
+           └─ movementSystem.keyDown(keycode)    ← priority 2
+```
+
+`BattlefieldScreen` performs screen→world coordinate conversion before dispatching `touchDown`. Systems receive world coordinates only.
+
+### Contract for every input system
+
+```kotlin
+fun touchDown(worldPos: Vector2, button: Int): Boolean
+fun keyDown(keycode: Int): Boolean
+```
+
+- **`true`** = event consumed; dispatcher stops the chain.
+- **`false`** = not handled; dispatcher continues to next system.
+- Systems must filter on `button` internally (e.g. `if (button != Input.Buttons.LEFT) return false`).
+
+### Conventions
+
+| Convention | Rule |
+|---|---|
+| Input key constants | Declared in `companion object` with `INPUT_` prefix (e.g. `INPUT_CONFIRM`, `INPUT_TRANSLATE_UP`) |
+| Tuning constants | Declared in `companion object` with unit suffix (e.g. `TRANSLATION_INCREMENT_IN`, `ROTATION_INCREMENT_DEG`) |
+| External communication | Callbacks only — injected at construction, never polling |
+| Parameter names | `worldPos: Vector2`, `button: Int`, `keycode: Int` — must be identical across all systems |
+
+### Adding a new input system
+
+1. Implement `fun touchDown(worldPos: Vector2, button: Int): Boolean` and `fun keyDown(keycode: Int): Boolean`.
+2. Add it to `BattlefieldScreen` at the appropriate priority position in `onTouchDown` / `onKeyDown`.
+3. Inject its callbacks from `BattlefieldScreen`.
+
+---
+
+## 16. Open questions
 
 | # | Question | Status |
 |---|---|---|

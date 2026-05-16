@@ -64,7 +64,7 @@ Dos ejércitos de 60 AP se enfrentan en un tablero de 36"×24". Turno: tirada de
 - Esta permitido crear secciones o ficheros mds nuevos si ayuda a gestionar orden y estructura de los ficheros y optimiza el consumo de tokens
 - El objetivo final es mantener estructura limpia y eficiente.
 
-## Convenciones de código y estilo de codigo
+## Convenciones y estilo de código
 - Codigo y comentarios en ingles.
 - Kotlin idiomático — usar KTX siempre que exista extensión equivalente.
 - Clases no triviales deben tener un kdoc explicando para que sirve la clase. Objetivo: contribuir al mind map del humano y de ai.
@@ -76,6 +76,7 @@ Dos ejércitos de 60 AP se enfrentan en un tablero de 36"×24". Turno: tirada de
   - Salto de linea para cada parametro. Excepcion: cuando queda mas legible en una linea (ej: ramas de un `when` donde cada rama llama a un metodo con argumentos cortos).
 - No añadir abstracciones anticipadas; implementar solo lo pedido.
 - Refactorizacion continua: si un cambio de codigo implica una refactorizacion para que el codigo sea mantenible y legible, propon la refactorizacion antes de ejecutar. Tiende a refactorizar sobre aplicar parches y chapuzas, pero informa a humano antes de proceder.
+- **No modificar estilo de formato existente:** no cambiar spacing, indentado, saltos de línea ni posición de brackets salvo que sea estrictamente necesario para corregir un bug o error de compilación. Esto aplica especialmente a `/simplify`: solo debe detectar bugs, simplificaciones arquitectónicas y code smells — nunca reformatear.
 
 ## Convenciones Test unitarios
 - mockk para mocks y stubbbings

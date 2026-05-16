@@ -9,7 +9,7 @@ Read this file first. It tells you what every doc contains and where to write ne
 | File | What it contains | Write here when… |
 |------|-----------------|------------------|
 | `docs/scope-and-tech.md` | What's in/out of scope, tech stack, world units (inches, BW, map size) | Scope changes, new tech choices |
-| `docs/decisions.md` | Every design/architecture decision with rationale; open questions. **§14: how to draw elements with ShapeRenderer (read before writing any rendering code).** | Any decision is made or reversed |
+| `docs/decisions.md` | Every design/architecture decision with rationale; open questions. **§14: how to draw elements with ShapeRenderer (read before writing any rendering code). §15: input system architecture and contract (read before adding any new input system).** | Any decision is made or reversed |
 | `docs/game rules/dba2.2 Wadbag rules.md` | DBA 2.2 geometry rules reference (spatial rules only, indexed, ~400 lines) | — read-only reference |
 | `docs/game rules/DBA_2_2_Unofficial_Guide.md` | Complete DBA 2.2 rules (full rulebook, all topics) | — read-only reference |
 | `docs/game rules/dba_summary.md` | DBA 2.2 condensed: entities, turn, movement, combat, win conditions | — read-only reference |

@@ -15,6 +15,11 @@ class ElementSelectionSystem(
     private val gameState: GameState,
     private val onSelectionChanged: (selected: List<Element>) -> Unit
 ) {
+
+    companion object {
+        private const val INPUT_SELECTION_MODIFIER    = Input.Keys.CONTROL_LEFT
+    }
+
     private var _selectedElements: List<Element> = emptyList()
     var selectedElements: List<Element>
         get() = _selectedElements
@@ -25,26 +30,29 @@ class ElementSelectionSystem(
 
     fun touchDown(worldPos: Vector2, button: Int): Boolean {
         if (button != Input.Buttons.LEFT) return false
-        val ctrlHeld = Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)
-        handleClick(worldPos, ctrlHeld)
+        val modifierHeld = Gdx.input.isKeyPressed(INPUT_SELECTION_MODIFIER)
+        handleClick(worldPos, modifierHeld)
         return true
     }
 
-    fun keyDown(keyDown: Int): Boolean {
+    fun keyDown(keycode: Int): Boolean {
         return false
     }
 
     /** Call with the world-space click position and whether Ctrl was held. */
-    private fun handleClick(worldPos: Vector2, ctrlHeld: Boolean) {
+    private fun handleClick(worldPos: Vector2, modifierHeld: Boolean) {
         val hit: Element? = gameState.elements.firstOrNull { it.contains(worldPos) }
         if (hit == null) { deselect(); return }
 
-        if (ctrlHeld) handleCtrlClick(hit = hit)
-        else selectedElements = GroupDetector.findGroup(hit, gameState.elements) ?: listOf(hit)
+        if (modifierHeld) {
+            toggleSelection(hit = hit)
+        } else {
+            selectedElements = GroupDetector.findGroup(hit, gameState.elements) ?: listOf(hit)
+        }
     }
 
     /** Adds or removes [hit] from the selection, provided the result is a valid connected subgroup. */
-    private fun handleCtrlClick(hit: Element) {
+    private fun toggleSelection(hit: Element) {
         val newSelected: List<Element> = if (hit in selectedElements)
             selectedElements - hit
         else

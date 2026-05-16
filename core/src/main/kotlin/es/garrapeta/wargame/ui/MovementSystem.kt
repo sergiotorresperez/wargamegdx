@@ -12,82 +12,123 @@ class MovementSystem(
 ) {
 
     companion object {
-        private const val TRANSLATION_INCREMENT: Float = 0.2f  // inches per keypress
+        private const val INPUT_FORWARD    = Input.Keys.UP
+        private const val INPUT_BACKWARD  = Input.Keys.DOWN
+        private const val INPUT_LEFT     = Input.Keys.LEFT
+        private const val INPUT_RIGHT    = Input.Keys.RIGHT
+        private const val INPUT_CONFIRM         = Input.Keys.ENTER
+        private const val INPUT_CANCEL          = Input.Keys.ESCAPE
+
+        private const val TRANSLATION_INCREMENT_IN: Float = 0.2f  // inches per keypress
+        private const val ROTATION_INCREMENT_DEG: Float = 5f       // degrees per keypress
     }
 
     private var ongoingMovement: OngoingMovement? = null
 
     fun startMovement(selected: List<Element>) {
-        assert(ongoingMovement == null)
-        ongoingMovement = OngoingMovement(selected).also {
-            onMovementStarted(it)
+        if (ongoingMovement != null) {
+            onMovementCanceled()
         }
+        ongoingMovement = OngoingMovement(
+            originals = selected,
+            previews = selected.map { it.deepCopy() },
+        ).also { onMovementStarted(it) }
     }
 
     fun touchDown(worldPos: Vector2, button: Int): Boolean {
-        val movement = ongoingMovement ?: return false
-
-        val hitInsideSelection = movement.selected.any { element ->
-            val fwd = element.forward
-            val offsetX = fwd.x * movement.translation
-            val offsetY = fwd.y * movement.translation
-            val offsetPos = Vector2(element.position.x + offsetX, element.position.y + offsetY)
-
-            val tempElement = Element(
-                id = element.id,
-                position = offsetPos,
-                angleDeg = element.angleDeg,
-                width = element.width,
-                depth = element.depth
-            )
-            tempElement.contains(worldPos)
-        }
-
-        if (hitInsideSelection) {
-            onMovementConfirmed(movement)
-        }  else {
-            onMovementCanceled()
-        }
-
-        return true
+        return false
     }
 
     fun keyDown(keycode: Int): Boolean {
-        val translationDelta = when (keycode) {
-            Input.Keys.UP -> TRANSLATION_INCREMENT
-            Input.Keys.DOWN -> -TRANSLATION_INCREMENT
-            else -> null
-        }
+        val movement = ongoingMovement ?: return false
+        val isGroupMovement = movement.originals.size > 1
 
-        val movement = ongoingMovement
-
-        return if (movement != null && translationDelta != null) {
-            onTranslate(movement, translationDelta)
-            true
-        } else {
-            false
+        return when (keycode) {
+            INPUT_FORWARD -> {
+                onTranslate(movement = movement, delta = +TRANSLATION_INCREMENT_IN)
+                true
+            }
+            INPUT_BACKWARD -> {
+                onTranslate(movement = movement, delta = -TRANSLATION_INCREMENT_IN)
+                true
+            }
+            INPUT_LEFT if isGroupMovement -> {
+                onPivotLeft(movement = movement, deltaDeg = +ROTATION_INCREMENT_DEG)
+                true
+            }
+            INPUT_RIGHT if isGroupMovement -> {
+                onPivotRight(movement = movement, deltaDeg = -ROTATION_INCREMENT_DEG)
+                true
+            }
+            INPUT_LEFT -> {
+                onRotate(movement = movement, deltaDeg = +ROTATION_INCREMENT_DEG)
+                true
+            }
+            INPUT_RIGHT -> {
+                onRotate(movement = movement, deltaDeg = -ROTATION_INCREMENT_DEG)
+                true
+            }
+            INPUT_CONFIRM -> {
+                onMovementConfirmed(movement)
+                true
+            }
+            INPUT_CANCEL -> {
+                onMovementCanceled()
+                true
+            }
+            else -> {
+                false
+            }
         }
     }
 
     private fun onTranslate(movement: OngoingMovement, delta: Float) {
-        // TODO: this is wrong if the facing has changed
-        movement.translation += delta
+        movement.previews.forEach { element ->
+            val fwd = element.forward
+            element.position.x += fwd.x * delta
+            element.position.y += fwd.y * delta
+        }
+    }
+
+    private fun onRotate(movement: OngoingMovement, deltaDeg: Float) {
+        movement.previews.forEach { element ->
+            element.angleDeg += deltaDeg
+        }
+    }
+
+    private fun onPivotLeft(movement: OngoingMovement, deltaDeg: Float) {
+        // TODO: pivot all the selected elements from front left corner
+    }
+
+    private fun onPivotRight(movement: OngoingMovement, deltaDeg: Float) {
+        // TODO: pivot all the selected elements from front right corner
     }
 
     private fun onMovementConfirmed(movement: OngoingMovement) {
-        movement.selected.forEach { element ->
-            element.position.y += movement.translation
+        // apply preview positions/facing to original elements
+        movement.originals.zip(movement.previews).forEach { (original, preview) ->
+            original.position.set(preview.position)
+            original.angleDeg = preview.angleDeg
         }
+        ongoingMovement = null
         onMovementFinished()
     }
 
     private fun onMovementCanceled() {
-        onMovementFinished()
         ongoingMovement = null
+        onMovementFinished()
     }
 
     data class OngoingMovement(
-        val selected: List<Element>,
-        var translation: Float = 0f
+        val originals: List<Element>,  // original references, mutated only on confirm
+        val previews: List<Element>,   // deep copies, updated freely during movement
+    )
+
+    private fun Element.deepCopy(): Element = Element(
+        id = id,
+        position = Vector2(position),
+        angleDeg = angleDeg,
+        width = width,
+        depth = depth,
     )
 }
