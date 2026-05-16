@@ -40,7 +40,32 @@ class MovementSystem(
     }
 
     fun touchDown(worldPos: Vector2, button: Int): Boolean {
-        return false
+        if (button != Input.Buttons.LEFT) return false
+        val movement = ongoingMovement ?: return false
+        if (movement.originals.size > 1) return false
+        if (!movement.previews.first().contains(worldPos)) return false
+        movement.activeOp = MovementOp.DragAndDrop(lastWorldPos = worldPos)
+        return true
+    }
+
+    fun touchDragged(worldPos: Vector2): Boolean {
+        val movement = ongoingMovement ?: return false
+        val drag = movement.activeOp as? MovementOp.DragAndDrop ?: return false
+        val dx: Float = worldPos.x - drag.lastWorldPos.x
+        val dy: Float = worldPos.y - drag.lastWorldPos.y
+        movement.previews.forEach { element ->
+            element.position.x += dx
+            element.position.y += dy
+        }
+        movement.activeOp = MovementOp.DragAndDrop(lastWorldPos = worldPos)
+        return true
+    }
+
+    fun touchUp(worldPos: Vector2, button: Int): Boolean {
+        val movement = ongoingMovement ?: return false
+        if (movement.activeOp !is MovementOp.DragAndDrop) return false
+        movement.activeOp = MovementOp.None
+        return true
     }
 
     fun keyDown(keycode: Int): Boolean {
@@ -49,18 +74,18 @@ class MovementSystem(
 
         return when (keycode) {
             INPUT_FORWARD -> {
-                movement.activeOp = MovementOp.TRANSLATE
+                movement.activeOp = MovementOp.Translate
                 translate(movement = movement, delta = +TRANSLATION_INCREMENT_IN)
                 true
             }
 
             INPUT_LEFT -> {
                 if (!isGroupMovement) {
-                    movement.activeOp = MovementOp.ROTATE
+                    movement.activeOp = MovementOp.Rotate
                     onRotate(movement = movement, deltaDeg = -ROTATION_INCREMENT_DEG)
                 } else {
-                    if (movement.activeOp != MovementOp.PIVOT_RIGHT) {
-                        movement.activeOp = MovementOp.PIVOT_LEFT
+                    if (movement.activeOp != MovementOp.PivotRight) {
+                        movement.activeOp = MovementOp.PivotLeft
                         onPivotLeft(movement = movement, deltaDeg = +ROTATION_INCREMENT_DEG)
                     } else {
                         onPivotRight(movement = movement, deltaDeg = +ROTATION_INCREMENT_DEG)
@@ -71,11 +96,11 @@ class MovementSystem(
 
             INPUT_RIGHT -> {
                 if (!isGroupMovement) {
-                    movement.activeOp = MovementOp.ROTATE
+                    movement.activeOp = MovementOp.Rotate
                     onRotate(movement = movement, deltaDeg = +ROTATION_INCREMENT_DEG)
                 } else {
-                    if (movement.activeOp != MovementOp.PIVOT_LEFT) {
-                        movement.activeOp = MovementOp.PIVOT_RIGHT
+                    if (movement.activeOp != MovementOp.PivotLeft) {
+                        movement.activeOp = MovementOp.PivotRight
                         onPivotRight(movement = movement, deltaDeg = -ROTATION_INCREMENT_DEG)
                     } else {
                         onPivotLeft(movement = movement, deltaDeg = -ROTATION_INCREMENT_DEG)
@@ -85,19 +110,19 @@ class MovementSystem(
             }
 
             INPUT_CONFIRM -> {
-                movement.activeOp = MovementOp.NONE
+                movement.activeOp = MovementOp.None
                 onMovementConfirmed(movement)
                 true
             }
 
             INPUT_CANCEL -> {
-                movement.activeOp = MovementOp.NONE
+                movement.activeOp = MovementOp.None
                 onMovementCanceled(movement)
                 true
             }
 
             else -> {
-                movement.activeOp = MovementOp.NONE
+                movement.activeOp = MovementOp.None
                 false
             }
         }
@@ -163,12 +188,19 @@ class MovementSystem(
         startMovement(movement.originals)
     }
 
-    enum class MovementOp { NONE, TRANSLATE, ROTATE, PIVOT_LEFT, PIVOT_RIGHT }
+    sealed class MovementOp {
+        object None       : MovementOp()
+        object Translate  : MovementOp()
+        object Rotate     : MovementOp()
+        object PivotLeft  : MovementOp()
+        object PivotRight : MovementOp()
+        data class DragAndDrop(val lastWorldPos: Vector2) : MovementOp()
+    }
 
     data class OngoingMovement(
         val originals: List<Element>,  // original references, mutated only on confirm
         val previews: List<Element>,   // deep copies, updated freely during movement
-        var activeOp: MovementOp = MovementOp.NONE,
+        var activeOp: MovementOp = MovementOp.None,
     )
 
     private fun Element.deepCopy(): Element = Element(

@@ -53,7 +53,15 @@ class WargameScreen : KtxScreen {
 
         Gdx.input.inputProcessor = object : InputAdapter() {
             override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-                return onTouchDown(screenX, screenY, pointer, button)
+                return onTouchDown(screenX = screenX, screenY = screenY, pointer = pointer, button = button)
+            }
+
+            override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+                return onTouchDragged(screenX = screenX, screenY = screenY)
+            }
+
+            override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+                return onTouchUp(screenX = screenX, screenY = screenY, button = button)
             }
 
             override fun keyDown(keycode: Int): Boolean {
@@ -81,11 +89,21 @@ class WargameScreen : KtxScreen {
 
     private fun onTouchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         val worldPos = viewport.unproject(Vector2(screenX.toFloat(), screenY.toFloat()))
-        return if (selectionSystem.touchDown(worldPos = worldPos, button = button)) {
+        return if (movementSystem.touchDown(worldPos = worldPos, button = button)) {
             true
         } else {
-            movementSystem.touchDown(worldPos, button)
+            selectionSystem.touchDown(worldPos = worldPos, button = button)
         }
+    }
+
+    private fun onTouchDragged(screenX: Int, screenY: Int): Boolean {
+        val worldPos: Vector2 = viewport.unproject(Vector2(screenX.toFloat(), screenY.toFloat()))
+        return movementSystem.touchDragged(worldPos = worldPos)
+    }
+
+    private fun onTouchUp(screenX: Int, screenY: Int, button: Int): Boolean {
+        val worldPos: Vector2 = viewport.unproject(Vector2(screenX.toFloat(), screenY.toFloat()))
+        return movementSystem.touchUp(worldPos = worldPos, button = button)
     }
 
     private fun onKeyDown(keycode: Int): Boolean {

@@ -39,8 +39,8 @@ Dos ejércitos de 60 AP se enfrentan en un tablero de 36"×24". Turno: tirada de
 - Geometría + selección operativas: 4 elementos pintados como rectángulos azules, bordes blancos, chevrones blancos.
 - Selección: click selecciona grupo o elemento individual; Ctrl+click añade/quita del grupo validando conectividad.
 - Highlight: elementos seleccionados renderizan con outline amarillo.
-- Movimiento operativo: Up/Down translate forward/backward; Left/Right pivotan grupos (inversión de pivot si el contrario está activo) o rotan individuales. Enter confirma; Escape cancela. Ghost preview translúcido se renderiza en tiempo real.
-- Siguiente paso: drag para movimiento libre (translate + reseleccionar pivot dirección).
+- Movimiento operativo: Up/Down translate forward/backward; Left/Right pivotan grupos (inversión de pivot si el contrario está activo) o rotan individuales; drag-and-drop del ghost para unidades individuales. Enter confirma; Escape cancela. Ghost preview translúcido se renderiza en tiempo real.
+- Siguiente paso: pivot en grupos con drag.
 
 ## Optimizacion de uso de tokens y de contexto
 - Es prioritario la minimizacion de uso de tokens. Actua lazily.
@@ -127,7 +127,7 @@ Algunos alias para workflow humano-ai:
 | `InitialElementsFactory` | `wargame.logic` | Crea el layout inicial: A aislada, B/C/D en formación flanco a flanco | Produce `List<Element>` |
 | `ElementSelectionSystem` | `wargame.ui` | Gestiona selección: click selecciona grupo, Ctrl+click añade/quita validando conectividad; observable con callback on change | Usa `GroupDetector`, `GameState`; callback a `WargameScreen` |
 | `GroupDetector` | `wargame.logic` | BFS para detección de grupos: `findGroup()`, `isConnectedSubgroup()` | Lee `Element` contacto |
-| `MovementSystem` | `wargame.ui` | Gestiona movimiento activo: Up/Down translate; Left/Right pivotan (grupo) o rotan (individual), con inversión si pivot opuesto activo vía `activeOp`; Enter/Escape confirma/cancela | Usa `Element`, `MovementOp`; `OngoingMovement` (originals + previews deep copy); callbacks `onMovementStarted/Finished` a `WargameScreen` |
+| `MovementSystem` | `wargame.ui` | Gestiona movimiento activo: Up/Down translate; Left/Right pivotan (grupo) o rotan (individual); drag-and-drop del ghost (individual only) vía `MovementOp.DragAndDrop`; Enter/Escape confirma/cancela | Usa `Element`, `MovementOp` (sealed class); `OngoingMovement` (originals + previews deep copy); callbacks `onMovementStarted/Stopped` a `WargameScreen` |
 | `MovementPreviewGhostActor` | `wargame.engine` | Renderiza rectángulos blancos translúcidos (30% alpha) en posiciones offset para cada elemento seleccionado | Implementa `Actor`, lee `OngoingMovement` |
 
 ## Workflow relativo a tareas y backlog
