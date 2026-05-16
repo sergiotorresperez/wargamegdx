@@ -22,7 +22,6 @@ class MovementSystem(
 
         private const val TRANSLATION_INCREMENT_IN: Float = 0.2f  // inches per keypress
         private const val ROTATION_INCREMENT_DEG: Float = 5f       // degrees per keypress
-        private const val SNAP_THRESHOLD: Float = 1f           // inches; snaps beyond this are filtered out
     }
 
     private var ongoingMovement: OngoingMovement? = null
@@ -68,6 +67,13 @@ class MovementSystem(
         val movement = ongoingMovement ?: return false
         if (movement.activeOp !is MovementOp.DragAndDrop) return false
         movement.activeOp = MovementOp.None
+
+        // apply snap automatically if first snap is very close
+        if (movement.snaps.isNotEmpty() && movement.snaps.first().isVeryClose) {
+            val snap: Snap = movement.snaps.first()
+            movement.previews.first().position.set(snap.newPosition)
+        }
+
         return true
     }
 
@@ -85,7 +91,7 @@ class MovementSystem(
             INPUT_LEFT -> {
                 if (!isGroupMovement) {
                     movement.activeOp = MovementOp.Rotate
-                    onRotate(movement = movement, deltaDeg = -ROTATION_INCREMENT_DEG)
+                    onRotate(movement = movement, deltaDeg = +ROTATION_INCREMENT_DEG)
                 } else {
                     if (movement.activeOp != MovementOp.PivotRight) {
                         movement.activeOp = MovementOp.PivotLeft
@@ -100,7 +106,7 @@ class MovementSystem(
             INPUT_RIGHT -> {
                 if (!isGroupMovement) {
                     movement.activeOp = MovementOp.Rotate
-                    onRotate(movement = movement, deltaDeg = +ROTATION_INCREMENT_DEG)
+                    onRotate(movement = movement, deltaDeg = -ROTATION_INCREMENT_DEG)
                 } else {
                     if (movement.activeOp != MovementOp.PivotLeft) {
                         movement.activeOp = MovementOp.PivotRight
@@ -186,8 +192,7 @@ class MovementSystem(
         // detect snaps for single-element movements only
         if (movement.originals.size == 1) {
             val targets: List<Element> = gameState.elements.filter { it.id != movement.originals.first().id }
-            val allSnaps: List<Snap> = SnapDetector.findSnaps(movement.previews.first(), targets)
-            movement.snaps = allSnaps.filter { it.distance < SNAP_THRESHOLD }
+            movement.snaps = SnapDetector.findSnaps(movement.previews.first(), targets)
         }
     }
 

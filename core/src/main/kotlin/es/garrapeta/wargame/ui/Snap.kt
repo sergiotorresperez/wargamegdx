@@ -44,4 +44,10 @@ data class Snap(
      * This ensures the moving element's corner aligns exactly with the target's corner.
      */
     val newPosition: Vector2,
+
+    /**
+     * True if snap distance is very close (< 0.5 inches).
+     * Indicates high-confidence snaps where corners are nearly aligned.
+     */
+    val isVeryClose: Boolean = false,
 )

@@ -15,12 +15,16 @@ import es.garrapeta.wargame.ui.SnapType
  */
 object SnapDetector {
 
+    private const val SHOW_THRESHOLD: Float = 1.0f           // inches; snaps beyond this are filtered out
+    private const val VERY_CLOSE_THRESHOLD: Float = 0.3f  // inches
+
     /**
      * Find all potential snap alignments between a moving element and a list of targets.
      *
      * For each target and each snap type, compute:
      * - Current distance between the snap corners
      * - Where the moving element would be positioned to achieve exact alignment
+     * - Whether the snap is "very close" (distance < 0.5 inches)
      *
      * @param element The element being moved/dragged
      * @param targets List of target elements to snap against
@@ -42,18 +46,23 @@ object SnapDetector {
                 val offset: Vector2 = Vector2(myCornerPos).sub(element.position)
                 val newPosition: Vector2 = Vector2(theirCornerPos).sub(offset)
 
-                snaps.add(
-                    Snap(
-                        snapType = snapType,
-                        element = element,
-                        target = target,
-                        distance = distance,
-                        newPosition = newPosition,
+                if (distance < SHOW_THRESHOLD) {
+                    snaps.add(
+                        Snap(
+                            snapType = snapType,
+                            element = element,
+                            target = target,
+                            distance = distance,
+                            newPosition = newPosition,
+                            isVeryClose = distance < VERY_CLOSE_THRESHOLD,
+                        )
                     )
-                )
+                }
+
             }
         }
 
         return snaps.sortedBy { it.distance }
     }
+
 }

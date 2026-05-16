@@ -127,8 +127,12 @@ Algunos alias para workflow humano-ai:
 | `InitialElementsFactory` | `wargame.logic` | Crea el layout inicial: A aislada, B/C/D en formación flanco a flanco | Produce `List<Element>` |
 | `ElementSelectionSystem` | `wargame.ui` | Gestiona selección: click selecciona grupo, Ctrl+click añade/quita validando conectividad; observable con callback on change | Usa `GroupDetector`, `GameState`; callback a `WargameScreen` |
 | `GroupDetector` | `wargame.logic` | BFS para detección de grupos: `findGroup()`, `isConnectedSubgroup()` | Lee `Element` contacto |
-| `MovementSystem` | `wargame.ui` | Gestiona movimiento activo: Up/Down translate; Left/Right pivotan (grupo) o rotan (individual); drag-and-drop del ghost (individual only) vía `MovementOp.DragAndDrop`; Enter/Escape confirma/cancela | Usa `Element`, `MovementOp` (sealed class); `OngoingMovement` (originals + previews deep copy); callbacks `onMovementStarted/Stopped` a `WargameScreen` |
-| `MovementPreviewGhostActor` | `wargame.engine` | Renderiza rectángulos blancos translúcidos (30% alpha) en posiciones offset para cada elemento seleccionado | Implementa `Actor`, lee `OngoingMovement` |
+| `MovementSystem` | `wargame.ui` | Gestiona movimiento activo: Up/Down translate; Left/Right pivotan (grupo) o rotan (individual); drag-and-drop del ghost (individual only) vía `MovementOp.DragAndDrop`; Enter/Escape confirma/cancela; aplica snap automático si `isVeryClose` | Usa `Element`, `MovementOp` (sealed class); `OngoingMovement` (originals + previews deep copy + snaps list); callbacks `onMovementStarted/Stopped` a `WargameScreen`; usa `SnapDetector` |
+| `MovementPreviewGhostActor` | `wargame.engine` | Renderiza rectángulos fantasma en posiciones snapped si existen snaps | Implementa `Actor`, lee `OngoingMovement.snaps` |
+| `Corner` | `wargame.logic` | Representa una de las 4 esquinas de un elemento; encapsula tipo + parámetros geométricos `(fwdSign, rgtSign)` | Tiene `enum Type` con 4 valores |
+| `SnapType` | `wargame.ui` | Enum de 8 tipos de snap derivados de DBA 2.2 (grupo, columna, contacto frontal, ataque de flanco) | Define `myCorner`, `theirCorner`, `requiredAngleDiff` |
+| `Snap` | `wargame.ui` | Data class que representa un snap potencial: qué, dónde, distancia, si es muy cercano (`isVeryClose`) | Tiene `snapType`, `element`, `target`, `distance`, `newPosition`, `isVeryClose` |
+| `SnapDetector` | `wargame.logic` | Detecta snaps potenciales para un elemento contra lista de targets; evalúa 8 tipos de snap, retorna sorted por distancia | Usa `SnapType`, `Corner`, `Snap`; filtra por `SHOW_THRESHOLD` (1.0"), marca `isVeryClose` si `< VERY_CLOSE_THRESHOLD` (0.3") |
 
 ## Workflow relativo a tareas y backlog
 Cuando se menciona una nueva tarea, requisito, elemento de backlog, TODO etc:

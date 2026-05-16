@@ -46,9 +46,14 @@ class MovementPreviewGhostActor(
         if (ongoingMovement.snaps.isEmpty()) return
 
         ongoingMovement.snaps.forEach { snap ->
-            shapeRenderer.set(ShapeType.Point)
+            if (snap.isVeryClose) {
+                shapeRenderer.set(ShapeType.Filled)
+            } else {
+                shapeRenderer.set(ShapeType.Line)
+            }
 
-            shapeRenderer.color = Color(0f, 1f, 1f, 1f)
+            shapeRenderer.color = Color(1f, 1f, 1f, 1f)
+
 
             val halfW: Float = snap.element.width / 2f
             val halfD: Float = snap.element.depth / 2f
