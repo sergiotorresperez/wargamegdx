@@ -36,7 +36,7 @@ class WargameScreen : KtxScreen {
     private val movementSystem = MovementSystem(
         gameState = gameState,
         onMovementStarted = ::onMovementStarted,
-        onMovementFinished = ::onMovementFinished
+        onMovementStopped = ::onMovementFinished
     )
 
     // rendering
@@ -101,7 +101,10 @@ class WargameScreen : KtxScreen {
         engine.actors.filterIsInstance<ElementActor>().forEach { actor ->
             actor.isSelected = actor.element in selected
         }
-        movementSystem.startMovement(selected)
+        movementSystem.stopMovement()
+        if (selected.isNotEmpty()) {
+            movementSystem.startMovement(selected)
+        }
     }
 
     private fun onMovementStarted(ongoingMovement: MovementSystem.OngoingMovement) {

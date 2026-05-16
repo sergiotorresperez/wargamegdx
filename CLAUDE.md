@@ -39,7 +39,7 @@ Dos ejércitos de 60 AP se enfrentan en un tablero de 36"×24". Turno: tirada de
 - Geometría + selección operativas: 4 elementos pintados como rectángulos azules, bordes blancos, chevrones blancos.
 - Selección: click selecciona grupo o elemento individual; Ctrl+click añade/quita del grupo validando conectividad.
 - Highlight: elementos seleccionados renderizan con outline amarillo.
-- Movimiento operativo: Up/Down translatent forward/backward; Left/Right pivotan grupos (inversion de pivot si el contrario está activo) o rotan individuales. Enter confirma; Escape cancela. Ghost preview translúcido se renderiza en tiempo real.
+- Movimiento operativo: Up/Down translate forward/backward; Left/Right pivotan grupos (inversión de pivot si el contrario está activo) o rotan individuales. Enter confirma; Escape cancela. Ghost preview translúcido se renderiza en tiempo real.
 - Siguiente paso: drag para movimiento libre (translate + reseleccionar pivot dirección).
 
 ## Optimizacion de uso de tokens y de contexto
