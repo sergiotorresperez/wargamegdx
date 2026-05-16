@@ -32,6 +32,11 @@ class WargameScreen : KtxScreen {
         gameState = gameState,
         onSelectionChanged = ::onSelectionChanged,
     )
+    private val movementSystem = MovementSystem(
+        gameState = gameState,
+        onMovementStarted = ::onMovementStarted,
+        onMovementFinished = {  },
+    )
 
     // rendering
     private val engine = GameEngine()
@@ -71,7 +76,11 @@ class WargameScreen : KtxScreen {
 
     private fun onTouchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         val worldPos = viewport.unproject(Vector2(screenX.toFloat(), screenY.toFloat()))
-        return selectionSystem.touchDown(worldPos = worldPos, button = button)
+        return if (movementSystem.touchDown(worldPos, button)) {
+            true
+        } else {
+            selectionSystem.touchDown(worldPos = worldPos, button = button)
+        }
     }
 
     /** Pushes selectedElements into each ElementActor's isSelected flag. */
@@ -79,5 +88,14 @@ class WargameScreen : KtxScreen {
         engine.actors.filterIsInstance<ElementActor>().forEach { actor ->
             actor.isSelected = actor.element in selected
         }
+        movementSystem.startMovement(selected)
+    }
+
+    private fun onMovementStarted(ongoingMovement: MovementSystem.OngoingMovement) {
+
+    }
+
+    private fun onMovementFinished() {
+
     }
 }
