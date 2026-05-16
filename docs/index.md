@@ -15,6 +15,7 @@ Read this file first. It tells you what every doc contains and where to write ne
 | `docs/game rules/dba_summary.md` | DBA 2.2 condensed: entities, turn, movement, combat, win conditions | — read-only reference |
 | `docs/game rules/mighty_armies_ancients_core_rules.md` | Complete Mighty Armies: Ancients rules | — read-only reference |
 | `docs/game rules/mighty_armies_summary.md` | Mighty Armies condensed: entities, turn, movement, combat, win conditions | — read-only reference |
+| `docs/snap-mechanics.md` | Snap mechanic use cases: which DBA 2.2 contact types trigger snap, angle requirements, examples | Snap features are added or modified |
 
 ## Tech docs
 
