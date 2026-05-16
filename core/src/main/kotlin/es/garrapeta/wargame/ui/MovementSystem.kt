@@ -58,9 +58,7 @@ class MovementSystem(
             element.position.x += dx
             element.position.y += dy
         }
-        // detect snaps for the dragged element (only single-element drag)
-        val targets: List<Element> = gameState.elements.filter { it.id != movement.originals.first().id }
-        movement.snaps = SnapDetector.findSnaps(movement.previews.first(), targets)
+        updateSnaps(movement = movement)
         movement.activeOp = MovementOp.DragAndDrop(lastWorldPos = worldPos)
         return true
     }
@@ -132,18 +130,28 @@ class MovementSystem(
         }
     }
 
+    private fun updateSnaps(movement: OngoingMovement) {
+        // detect snaps for single-element movements only
+        if (movement.originals.size == 1) {
+            val targets: List<Element> = gameState.elements.filter { it.id != movement.originals.first().id }
+            movement.snaps = SnapDetector.findSnaps(movement.previews.first(), targets)
+        }
+    }
+
     private fun translate(movement: OngoingMovement, delta: Float) {
         movement.previews.forEach { element ->
             val fwd = element.forward
             element.position.x += fwd.x * delta
             element.position.y += fwd.y * delta
         }
+        updateSnaps(movement = movement)
     }
 
     private fun onRotate(movement: OngoingMovement, deltaDeg: Float) {
         movement.previews.forEach { element ->
             element.angleDeg += deltaDeg
         }
+        updateSnaps(movement = movement)
     }
 
     private fun onPivotLeft(movement: OngoingMovement, deltaDeg: Float) {
@@ -160,6 +168,7 @@ class MovementSystem(
             element.position.y = pivot.y + dx * sin + dy * cos
             element.angleDeg += deltaDeg
         }
+        updateSnaps(movement = movement)
     }
 
     private fun onPivotRight(movement: OngoingMovement, deltaDeg: Float) {
@@ -176,6 +185,7 @@ class MovementSystem(
             element.position.y = pivot.y + dx * sin + dy * cos
             element.angleDeg += deltaDeg
         }
+        updateSnaps(movement = movement)
     }
 
     private fun onMovementConfirmed(movement: OngoingMovement) {
