@@ -21,7 +21,8 @@ This file records decisions that have been made, the reasoning behind them, and 
 13. [ElementActor wraps GameElement](#13-elementactor-wraps-gameelement)
 14. [Rendering an element with ShapeRenderer](#14-rendering-an-element-with-shaperenderer)
 15. [Architecture: input systems](#15-architecture-input-systems)
-16. [Open questions](#16-open-questions)
+16. [Contact snapping (DragAndDrop)](#16-contact-snapping-draganddrop)
+17. [Open questions](#17-open-questions)
 
 ---
 
@@ -168,7 +169,7 @@ Concretely:
 
 **Reason**: floating-point arithmetic will not produce exact corner coincidence after rotation and translation. A small epsilon prevents false negatives.
 
-**Open question**: should contact snapping be implemented (auto-align when the player drops an element close to contact)? This would greatly improve usability. Not yet decided.
+**Contact snapping** (see §16) is implemented for drag-and-drop moves to improve usability.
 
 ---
 
@@ -352,11 +353,47 @@ fun keyDown(keycode: Int): Boolean
 
 ---
 
-## 16. Open questions
+## 16. Contact snapping (DragAndDrop)
+
+**Decision**: during DragAndDrop (single-element translation via mouse drag), detect when the moving element's corners are close to target snap points and auto-align (snap) the element to achieve exact geometric contact.
+
+**Implementation**: in `MovementSystem.touchDragged()`, after computing the new position from the drag delta, call `trySnap()` to find the best snap candidate within `SNAP_RADIUS` (0.4 in ≈ 25% of BW). If found, override the position so that the dragged element's corner aligns exactly with the target corner.
+
+**Snap candidates**: the following 8 contact types from DBA 2.2 §5, §6, §9:
+
+| # | Name | Dragged corner | Target corner | Angle requirement | Contact type |
+|---|------|---|---|---|---|
+| 1 | Side-right | frontRight | target.frontLeft | same (< 15°) | Group formation §5 |
+| 2 | Side-left | frontLeft | target.frontRight | same (< 15°) | Group formation §5 |
+| 3 | Column-ahead | frontLeft | target.rearLeft | same (< 15°) | Column formation §6 |
+| 4 | Column-behind | rearLeft | target.frontLeft | same (< 15°) | Column formation §6 |
+| 5 | Front-contact-L | frontLeft | target.frontRight | opposite (~180°, < 15°) | Front contact §9.1 |
+| 6 | Front-contact-R | frontRight | target.frontLeft | opposite (~180°, < 15°) | Front contact §9.1 |
+| 7 | Flank-attack-left | frontLeft | target.frontLeft | perpendicular (~90°, < 15°) | Flank contact §9.2 |
+| 8 | Flank-attack-right | frontRight | target.frontRight | perpendicular (~90°, < 15°) | Flank contact §9.2 |
+
+**Snap position formula**: for any configuration, the snapped position of the dragged element is:
+```
+snapPosition = targetCorner - (draggedCorner - draggedElement.position)
+```
+
+This translates the dragged element so its corner aligns exactly with the target corner.
+
+**Angle filtering**: each candidate is checked against the angle difference between the dragged element and the target. Only configurations matching their angle requirement (same / opposite / perpendicular, ±15° tolerance) are considered. This prevents false snaps when elements are misaligned.
+
+**Best candidate selection**: all valid candidates across all target elements are ranked by corner distance. The closest candidate (minimum distance < SNAP_RADIUS) is applied. This gives intuitive behavior: the closest snap "wins."
+
+**Scope**: snap only applies to DragAndDrop, not to keyboard-driven movement (translate, rotate, pivot). Snap only corrects position, not angle.
+
+**Usability goal**: the snap makes it easy for the player to form groups, columns, and legal contacts without pixel-perfect alignment, greatly improving play experience.
+
+---
+
+## 17. Open questions
 
 | # | Question | Status |
 |---|---|---|
-| Q1 | Should contact snapping be implemented? (auto-align element when dropped near legal contact position) | Open |
+| Q1 | Should contact snapping be implemented? (auto-align element when dropped near legal contact position) | Resolved: yes, snap is implemented for DragAndDrop (§16). 8 contact configurations from DBA 2.2, angle-filtered, best-candidate selection. |
 | Q2 | Does the close-door move require a friendly in front contact, or can it happen any time an overlap exists? | Resolved: friendly in front contact is required. Without it, move can still happen but must be measured normally (cannot exceed cap). |
 | Q3 | Can A move into overlap position AND close the door in the same turn? | Resolved: No. Close-door starts from an overlap that exists at the **beginning** of the move. |
 | Q4 | Should group pivot support mid-move pivots (e.g., advance → pivot → advance in one order)? | Resolved: yes, the rules allow any combination of forward movement and pivots in a single group move. |
