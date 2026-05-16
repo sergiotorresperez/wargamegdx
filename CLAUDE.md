@@ -37,8 +37,9 @@ Dos ejércitos de 60 AP se enfrentan en un tablero de 36"×24". Turno: tirada de
 
 ## Estado actual
 - Geometría + selección operativas: 4 elementos pintados como rectángulos azules, bordes blancos, chevrones blancos.
-- Selección: click selecciona grupo o elemento individual; Ctrl+click añade/quita del grupo validando conectividad; ESC deselecciona.
+- Selección: click selecciona grupo o elemento individual; Ctrl+click añade/quita del grupo validando conectividad.
 - Highlight: elementos seleccionados renderizan con outline amarillo.
+- Refactorización reciente: `ElementSelectionSystem` ahora observable via callback (patrón observer); input handling centralizado en `touchDown()`.
 - Siguiente paso: movimiento de elementos individuales y grupos.
 
 ## Optimizacion de uso de tokens y de contexto
@@ -108,6 +109,7 @@ Algunos alias para workflow humano-ai:
 
 | # | Tarea                                               | Notas |
 |---|-----------------------------------------------------|-------|
+| 1 | Extraer `groupBounds()` a utilidad compartida `GeometryUtils` o extension en `Element` | Necesaria para futuro: renders de group bounding box, collision checks, UI |
 
 
 ## ClassMap
@@ -122,7 +124,7 @@ Algunos alias para workflow humano-ai:
 | `Element` | `wargame.logic` | Datos espaciales de una unidad: posición, ángulo, tamaño; hit-test con polígono rotado | — |
 | `GameState` | `wargame.logic` | Contenedor: `List<Element>` que representa el estado del tablero | — |
 | `InitialElementsFactory` | `wargame.logic` | Crea el layout inicial: A aislada, B/C/D en formación flanco a flanco | Produce `List<Element>` |
-| `ElementSelectionSystem` | `wargame.ui` | Gestiona selección: click selecciona grupo, Ctrl+click añade/quita validando conectividad | Usa `GroupDetector`, `GameState` |
+| `ElementSelectionSystem` | `wargame.ui` | Gestiona selección: click selecciona grupo, Ctrl+click añade/quita validando conectividad; observable con callback on change | Usa `GroupDetector`, `GameState`; callback a `WargameScreen` |
 | `GroupDetector` | `wargame.logic` | BFS para detección de grupos: `findGroup()`, `isConnectedSubgroup()` | Lee `Element` contacto |
 
 ## Workflow relativo a tareas y backlog
