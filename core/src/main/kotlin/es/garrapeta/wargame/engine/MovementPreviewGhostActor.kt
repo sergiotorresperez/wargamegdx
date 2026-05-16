@@ -13,6 +13,7 @@ class MovementPreviewGhostActor(
 
     companion object {
         const val ACTOR_ID = "MovementPreviewGhostActor"
+        const val SNAP_VISUALIZATION_THRESHOLD: Float = 0.25f  // inches
     }
     override val id: String get() = ACTOR_ID
 
@@ -45,9 +46,10 @@ class MovementPreviewGhostActor(
     }
 
     private fun paintSnapRectangles(shapeRenderer: ShapeRenderer) {
-        if (ongoingMovement.snaps.isEmpty()) return
+        val visibleSnaps = ongoingMovement.snaps.filter { it.distance < SNAP_VISUALIZATION_THRESHOLD }
+        if (visibleSnaps.isEmpty()) return
 
-        ongoingMovement.snaps.forEachIndexed { index, snap ->
+        visibleSnaps.forEachIndexed { index, snap ->
             shapeRenderer.set(ShapeType.Filled)
             // closest snap (index 0) in cyan; others in yellow
             val isClosest: Boolean = index == 0
@@ -71,11 +73,12 @@ class MovementPreviewGhostActor(
     }
 
     private fun paintSnapLines(shapeRenderer: ShapeRenderer) {
-        if (ongoingMovement.snaps.isEmpty()) return
+        val visibleSnaps = ongoingMovement.snaps.filter { it.distance < SNAP_VISUALIZATION_THRESHOLD }
+        if (visibleSnaps.isEmpty()) return
 
         shapeRenderer.set(ShapeType.Line)
 
-        ongoingMovement.snaps.forEachIndexed { index, snap ->
+        visibleSnaps.forEachIndexed { index, snap ->
             val isClosest: Boolean = index == 0
             shapeRenderer.color = if (isClosest) {
                 Color(0f, 1f, 1f, 0.6f)  // cyan, 60% alpha
@@ -91,12 +94,13 @@ class MovementPreviewGhostActor(
     }
 
     private fun paintSnapPoints(shapeRenderer: ShapeRenderer) {
-        if (ongoingMovement.snaps.isEmpty()) return
+        val visibleSnaps = ongoingMovement.snaps.filter { it.distance < SNAP_VISUALIZATION_THRESHOLD }
+        if (visibleSnaps.isEmpty()) return
 
         shapeRenderer.set(ShapeType.Filled)
         val pointRadius: Float = 0.1f  // small circle
 
-        ongoingMovement.snaps.forEachIndexed { index, snap ->
+        visibleSnaps.forEachIndexed { index, snap ->
             val isClosest: Boolean = index == 0
             shapeRenderer.color = if (isClosest) {
                 Color(0f, 1f, 1f, 0.8f)  // cyan, 80% alpha
