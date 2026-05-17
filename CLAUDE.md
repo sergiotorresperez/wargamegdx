@@ -36,11 +36,11 @@ Dos ejércitos de 60 AP se enfrentan en un tablero de 36"×24". Turno: tirada de
 5. Para saber qué ficheros fuente existen → consulta §ClassMap de este fichero.
 
 ## Estado actual
-- Geometría + selección operativas: 4 elementos pintados como rectángulos azules, bordes blancos, chevrones blancos.
-- Selección: click selecciona grupo o elemento individual; Ctrl+click añade/quita del grupo validando conectividad.
-- Highlight: elementos seleccionados renderizan con outline amarillo.
-- Movimiento operativo: Up/Down translate forward/backward; Left/Right pivotan grupos (inversión de pivot si el contrario está activo) o rotan individuales; drag-and-drop del ghost para unidades individuales. Enter confirma; Escape cancela. Ghost preview translúcido se renderiza en tiempo real.
-- Siguiente paso: pivot en grupos con drag.
+- **Tablero:** grid 1"×1" (verde oscuro), borde verde grueso.
+- **Elementos:** 4 unidades pintadas como rectángulos azules, bordes blancos, chevrones blancos.
+- **Selección:** click selecciona grupo o elemento individual; Ctrl+click añade/quita del grupo validando conectividad; highlight con outline amarillo.
+- **Movimiento:** Up/Down translate, Left/Right pivotan (grupos) o rotan (individuales), drag-and-drop ghost (individual only); Enter confirma, Escape cancela; snap automático si `isVeryClose`.
+- **Dimensiones:** width/depth explícitos en cada elemento (40mm×20mm en inches), battlefield 36"×24".
 
 ## Optimizacion de uso de tokens y de contexto
 - Es prioritario la minimizacion de uso de tokens. Actua lazily.
@@ -122,8 +122,9 @@ Algunos alias para workflow humano-ai:
 | `GameEngine` | `wargame.engine` | Colección de `Actor`s; `addActor`, `removeActor`, `getActorById<T>`, render con autoShapeType | Itera `List<Actor>` |
 | `Actor` | `wargame.engine` | Interfaz: `id: String` + `render(ShapeRenderer, delta)` | — |
 | `ElementActor` | `wargame.engine` | Renderiza un `Element`: fill azul, borde y chevron blancos, outline amarillo si selected | Implementa `Actor`, lee `Element` |
-| `Element` | `wargame.logic` | Datos espaciales de una unidad: posición, ángulo, tamaño; hit-test con polígono rotado | — |
-| `GameState` | `wargame.logic` | Contenedor: `List<Element>` que representa el estado del tablero | — |
+| `BattlefieldActor` | `wargame.engine` | Renderiza el tablero: borde verde grueso + grid 1"×1" en verde oscuro | Implementa `Actor`; constantes `BATTLEFIELD_WIDTH/HEIGHT` en companion object |
+| `Element` | `wargame.logic` | Datos espaciales de una unidad: posición, ángulo, width/depth (sin defaults); hit-test con polígono rotado | — |
+| `GameState` | `wargame.logic` | Contenedor: `List<Element>` que representa el estado del tablero; constantes tablero en companion object | — |
 | `InitialElementsFactory` | `wargame.logic` | Crea el layout inicial: A aislada, B/C/D en formación flanco a flanco | Produce `List<Element>` |
 | `ElementSelectionSystem` | `wargame.ui` | Gestiona selección: click selecciona grupo, Ctrl+click añade/quita validando conectividad; observable con callback on change | Usa `GroupDetector`, `GameState`; callback a `WargameScreen` |
 | `GroupDetector` | `wargame.logic` | BFS para detección de grupos: `findGroup()`, `isConnectedSubgroup()` | Lee `Element` contacto |

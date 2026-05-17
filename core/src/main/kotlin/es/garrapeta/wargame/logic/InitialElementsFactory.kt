@@ -1,32 +1,43 @@
 package es.garrapeta.wargame.logic
 
 import com.badlogic.gdx.math.Vector2
+import es.garrapeta.wargame.geometry.mmToInches
 
 /** Creates the fixed initial layout of elements for a new battle. */
 class InitialElementsFactory {
 
-    fun createElement(): List<Element> = listOf(
+    fun createElement(): List<Element> {
         // A: isolated
-        Element(
+        val a = Element(
             id = "A",
-            position = Vector2(9f, 12f),
-            angleDeg = 90f, // north
-        ),
+            position = Vector2(10f, 4f),
+            angleDeg = 90f,
+            width = 40f.mmToInches(),
+            depth = 20f.mmToInches()
+        )
         // B, C, D: group formation, flank to flank, facing north
-        Element(
+        val b = Element(
             id = "B",
-            position = Vector2(18f, 12f),
+            position = Vector2(15f, 4f),
             angleDeg = 90f,
-        ),
-        Element(
+            width = 40f.mmToInches(),
+            depth = 20f.mmToInches()
+        )
+        val c = Element(
             id = "C",
-            position = Vector2(18f + BASE_WIDTH, 12f),
+            position = Vector2(15f + b.width, 4f),
             angleDeg = 90f,
-        ),
-        Element(
+            width = 40f.mmToInches(),
+            depth = 20f.mmToInches()
+        )
+        val d = Element(
             id = "D",
-            position = Vector2(18f + BASE_WIDTH * 2f, 12f),
+            position = Vector2(15f + c.width * 2f, 4f),
             angleDeg = 90f,
-        ),
-    )
+            width = 40f.mmToInches(),
+            depth = 20f.mmToInches()
+        )
+        return listOf(a, b, c, d)
+    }
+
 }

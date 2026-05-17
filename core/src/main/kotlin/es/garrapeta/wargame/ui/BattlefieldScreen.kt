@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FitViewport
+import es.garrapeta.wargame.engine.BattlefieldActor
 import es.garrapeta.wargame.engine.ElementActor
 import es.garrapeta.wargame.engine.GameEngine
 import es.garrapeta.wargame.engine.MovementPreviewGhostActor
@@ -15,14 +16,11 @@ import es.garrapeta.wargame.logic.GameState
 import es.garrapeta.wargame.logic.InitialElementsFactory
 import ktx.app.KtxScreen
 
-private const val BATTLEFIELD_WIDTH: Float = 36f
-private const val BATTLEFIELD_HEIGHT: Float = 24f
-
 /** Game screen: owns the render loop and routes input to the selection system. */
 class WargameScreen : KtxScreen {
 
     private val camera = OrthographicCamera()
-    private val viewport = FitViewport(BATTLEFIELD_WIDTH, BATTLEFIELD_HEIGHT, camera)
+    private val viewport = FitViewport(GameState.BATTLEFIELD_WIDTH, GameState.BATTLEFIELD_HEIGHT, camera)
     private val shapeRenderer = ShapeRenderer()
 
     // logic
@@ -43,8 +41,13 @@ class WargameScreen : KtxScreen {
     private val engine = GameEngine()
 
     override fun show() {
-        camera.position.set(BATTLEFIELD_WIDTH / 2f, BATTLEFIELD_HEIGHT / 2f, 0f)
+        camera.position.set(GameState.BATTLEFIELD_WIDTH / 2f, GameState.BATTLEFIELD_HEIGHT / 2f, 0f)
         camera.update()
+
+        engine.addActor(BattlefieldActor(
+            width = GameState.BATTLEFIELD_WIDTH,
+            height = GameState.BATTLEFIELD_HEIGHT
+        ))
 
         // one ElementActor per Element — shares the same Element instance
         gameState.elements.forEach { element ->

@@ -11,7 +11,10 @@
       "Bash(kotlinc -no-stdlib -no-reflect src/main/kotlin/es/garrapeta/wargame/engine/MovementPreviewGhostActor.kt -d /tmp/test.jar)",
       "Bash(git -C /c/Users/guarr/development/git/wargamegdx add CLAUDE.md core/src/main/kotlin/es/garrapeta/wargame/ui/BattlefieldScreen.kt core/src/main/kotlin/es/garrapeta/wargame/ui/ElementSelectionSystem.kt core/src/main/kotlin/es/garrapeta/wargame/ui/MovementSystem.kt)",
       "Bash(git -C /c/Users/guarr/development/git/wargamegdx commit -m ' *)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(./gradlew :android:compileDebugKotlin)",
+      "Bash(./gradlew :core:build)",
+      "Bash(./gradlew :desktop:run)"
     ]
   }
 }
