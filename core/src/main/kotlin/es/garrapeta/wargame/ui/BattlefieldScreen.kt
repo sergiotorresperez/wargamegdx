@@ -92,10 +92,10 @@ class WargameScreen : KtxScreen {
 
     private fun onTouchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         val worldPos = viewport.unproject(Vector2(screenX.toFloat(), screenY.toFloat()))
-        return if (movementSystem.touchDown(worldPos = worldPos, button = button)) {
+        return if (selectionSystem.touchDown(worldPos = worldPos, button = button)) {
             true
         } else {
-            selectionSystem.touchDown(worldPos = worldPos, button = button)
+            movementSystem.touchDown(worldPos = worldPos, button = button)
         }
     }
 

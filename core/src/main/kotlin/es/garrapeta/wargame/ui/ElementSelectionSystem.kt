@@ -32,7 +32,7 @@ class ElementSelectionSystem(
         if (button != Input.Buttons.LEFT) return false
         val modifierHeld = Gdx.input.isKeyPressed(INPUT_SELECTION_MODIFIER)
         handleClick(worldPos, modifierHeld)
-        return true
+        return false
     }
 
     fun keyDown(keycode: Int): Boolean {
