@@ -6,11 +6,13 @@ import com.badlogic.gdx.math.Vector2
 import es.garrapeta.wargame.logic.Element
 import es.garrapeta.wargame.logic.GameState
 import es.garrapeta.wargame.logic.SnapDetector
+import kotlin.collections.ArrayDeque
 
 class MovementSystem(
     private val gameState: GameState,
     private val onMovementStarted: ((OngoingMovement) -> Unit),
-    private val onMovementStopped: (() -> Unit)
+    private val onMovementStopped: (() -> Unit),
+    private val onCanUndoChanged: (Boolean) -> Unit
 ) {
 
     companion object {
@@ -25,8 +27,11 @@ class MovementSystem(
     }
 
     private var ongoingMovement: OngoingMovement? = null
+    private val undoStack: ArrayDeque<UndoEntry> = ArrayDeque()
 
     fun startMovement(selected: List<Element>) {
+        undoStack.clear()
+        onCanUndoChanged(false)
         ongoingMovement = OngoingMovement(
             originals = selected,
             previews = selected.map { it.deepCopy() },
@@ -36,6 +41,7 @@ class MovementSystem(
     fun stopMovement() {
         if (ongoingMovement != null) {
             ongoingMovement = null
+            onCanUndoChanged(undoStack.isNotEmpty())
             onMovementStopped()
         }
     }
@@ -199,6 +205,14 @@ class MovementSystem(
     }
 
     private fun onMovementConfirmed(movement: OngoingMovement) {
+        // save snapshot before mutating originals (for undo)
+        val entry = UndoEntry(
+            elements = movement.originals,
+            beforePositions = movement.originals.map { it.deepCopy() }
+        )
+        undoStack.addLast(entry)
+        onCanUndoChanged(undoStack.isNotEmpty())
+
         // apply preview positions/facing to original elements
         movement.originals.zip(movement.previews).forEach { (original, preview) ->
             original.position.set(preview.position)
@@ -212,6 +226,16 @@ class MovementSystem(
         startMovement(movement.originals)
     }
 
+    fun undoLastMovement() {
+        val entry = undoStack.removeLastOrNull()
+        entry?.elements?.zip(entry.beforePositions)?.forEach { (affected, beforePosition) ->
+            affected.position.set(beforePosition.position)
+            affected.angleDeg = beforePosition.angleDeg
+        }
+
+        onCanUndoChanged(undoStack.isNotEmpty())
+    }
+
     sealed class MovementOp {
         object None       : MovementOp()
         object Translate  : MovementOp()
@@ -220,6 +244,11 @@ class MovementSystem(
         object PivotRight : MovementOp()
         data class DragAndDrop(val lastWorldPos: Vector2) : MovementOp()
     }
+
+    private data class UndoEntry(
+        val elements: List<Element>,
+        val beforePositions: List<Element>
+    )
 
     data class OngoingMovement(
         val originals: List<Element>,  // original references, mutated only on confirm
@@ -235,4 +264,6 @@ class MovementSystem(
         width = width,
         depth = depth,
     )
+
+
 }

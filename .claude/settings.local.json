@@ -14,7 +14,11 @@
       "Bash(git *)",
       "Bash(./gradlew :android:compileDebugKotlin)",
       "Bash(./gradlew :core:build)",
-      "Bash(./gradlew :desktop:run)"
+      "Bash(./gradlew :desktop:run)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\guarr\\\\development\\\\git\\\\wargamegdx\" -Recurse -Filter \"*Screen.kt\" -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object -First 20)",
+      "Bash(find C:\\\\\\\\Users\\\\\\\\guarr\\\\\\\\development\\\\\\\\git\\\\\\\\wargamegdx -name \"*Screen.kt\" -type f)",
+      "Bash(find C:\\\\\\\\Users\\\\\\\\guarr\\\\\\\\development\\\\\\\\git\\\\\\\\wargamegdx -name \"*.kt\" -type f)"
     ]
   }
 }

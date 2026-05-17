@@ -2,6 +2,7 @@ package es.garrapeta.wargame.ui
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputAdapter
+import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
@@ -34,7 +35,13 @@ class WargameScreen : KtxScreen {
     private val movementSystem = MovementSystem(
         gameState = gameState,
         onMovementStarted = ::onMovementStarted,
-        onMovementStopped = ::onMovementFinished
+        onMovementStopped = ::onMovementFinished,
+        onCanUndoChanged = { canUndo -> hudOverlay.setUndoMovementIsVisible(canUndo) }
+    )
+
+    // HUD
+    private val hudOverlay = HudOverlay(
+        onUndoMovementClicked = ::onUndoLastMovement,
     )
 
     // rendering
@@ -44,17 +51,19 @@ class WargameScreen : KtxScreen {
         camera.position.set(GameState.BATTLEFIELD_WIDTH / 2f, GameState.BATTLEFIELD_HEIGHT / 2f, 0f)
         camera.update()
 
-        engine.addActor(BattlefieldActor(
-            width = GameState.BATTLEFIELD_WIDTH,
-            height = GameState.BATTLEFIELD_HEIGHT
-        ))
+        engine.addActor(
+            BattlefieldActor(
+                width = GameState.BATTLEFIELD_WIDTH,
+                height = GameState.BATTLEFIELD_HEIGHT
+            )
+        )
 
         // one ElementActor per Element — shares the same Element instance
         gameState.elements.forEach { element ->
             engine.addActor(ElementActor(element = element))
         }
 
-        Gdx.input.inputProcessor = object : InputAdapter() {
+        val inputAdapter = object : InputAdapter() {
             override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
                 return onTouchDown(screenX = screenX, screenY = screenY, pointer = pointer, button = button)
             }
@@ -71,23 +80,30 @@ class WargameScreen : KtxScreen {
                 return onKeyDown(keycode = keycode)
             }
         }
+
+        Gdx.input.inputProcessor = InputMultiplexer(hudOverlay, inputAdapter)
     }
 
     override fun render(delta: Float) {
         ScreenUtils.clear(0f, 0f, 0f, 1f)
+        viewport.apply()
         camera.update()
         shapeRenderer.projectionMatrix = camera.combined
-
-        // element bodies, borders, chevrons and per-element selection outline — via GameEngine
         engine.render(shapeRenderer = shapeRenderer, delta = delta)
+
+        // HUD
+        hudOverlay.act(delta)
+        hudOverlay.draw()
     }
 
     override fun resize(width: Int, height: Int) {
-        viewport.update(width, height)
+        viewport.update(width, height, true)
+        hudOverlay.resize(width, height)
     }
 
     override fun dispose() {
         shapeRenderer.dispose()
+        hudOverlay.dispose()
     }
 
     private fun onTouchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
@@ -134,5 +150,9 @@ class WargameScreen : KtxScreen {
 
     private fun onMovementFinished() {
         engine.removeActorById(MovementPreviewGhostActor.ACTOR_ID)
+    }
+
+    private fun onUndoLastMovement() {
+        movementSystem.undoLastMovement()
     }
 }
