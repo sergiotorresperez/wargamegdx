@@ -46,6 +46,13 @@ data class Snap(
     val newPosition: Vector2,
 
     /**
+     * The angle (in degrees) the moving element should have to satisfy this snap.
+     * For snaps where requiredAngleDiff == 0, newAngle == element.angleDeg (no rotation).
+     * For snaps where requiredAngleDiff != 0, newAngle is calculated to match the required angle difference.
+     */
+    val newAngle: Float,
+
+    /**
      * True if snap distance is very close (< 0.5 inches).
      * Indicates high-confidence snaps where corners are nearly aligned.
      */

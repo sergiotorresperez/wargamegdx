@@ -1,5 +1,6 @@
 package es.garrapeta.wargame.logic
 
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import es.garrapeta.wargame.ui.Snap
 import es.garrapeta.wargame.ui.SnapType
@@ -15,8 +16,9 @@ import es.garrapeta.wargame.ui.SnapType
  */
 object SnapDetector {
 
-    private const val SHOW_THRESHOLD: Float = 1.0f           // inches; snaps beyond this are filtered out
-    private const val VERY_CLOSE_THRESHOLD: Float = 0.3f  // inches
+    private const val SHOW_THRESHOLD: Float = 1.3f           // inches; snaps beyond this are filtered out
+    private const val VERY_CLOSE_THRESHOLD: Float = 0.6f  // inches
+    private const val DEGREE_TOLERANCE: Float = 45f
 
     /**
      * Find all potential snap alignments between a moving element and a list of targets.
@@ -50,16 +52,36 @@ object SnapDetector {
         element: Element,
         target: Element
     ): Snap? {
+        // Validate angle requirement: element's angle diff from target must match requiredAngleDiff
+        val angleDiff: Float = element.angleDeg - target.angleDeg
+        val requiredDiff: Float = snapType.requiredAngleDiff
+        val tolerance: Float = DEGREE_TOLERANCE
+        val angleWithinTolerance: Boolean = kotlin.math.abs(angleDiff - requiredDiff) <= tolerance ||
+                                             kotlin.math.abs(angleDiff - (requiredDiff - 360f)) <= tolerance ||
+                                             kotlin.math.abs(angleDiff - (requiredDiff + 360f)) <= tolerance
+        if (!angleWithinTolerance) {
+            return null
+        }
+
+        // New angle to satisfy snap requirement: target's angle + required difference
+        val newAngle: Float = target.angleDeg + requiredDiff
+
         val myCornerPos: Vector2 = element.getCorner(snapType.myCorner)
         val theirCornerPos: Vector2 = target.getCorner(snapType.theirCorner)
 
         // Distance between the corners that would be aligned by this snap
         val distance: Float = myCornerPos.dst(theirCornerPos)
 
-        // New position of element's center to achieve exact corner alignment
-        // Formula: newPos = targetCorner - (myCorner - currentPos)
-        val offset: Vector2 = Vector2(myCornerPos).sub(element.position)
-        val newPosition: Vector2 = Vector2(theirCornerPos).sub(offset)
+        // New position of element's center to achieve exact corner alignment after rotation to newAngle
+        // Calculate where myCorner would be if element had newAngle
+        val newFwdX: Float = MathUtils.cosDeg(newAngle)
+        val newFwdY: Float = MathUtils.sinDeg(newAngle)
+        val cornerType: Corner = snapType.myCorner
+        val halfD: Float = element.depth / 2f
+        val halfW: Float = element.width / 2f
+        val myCornerOffsetX: Float = newFwdX * halfD * cornerType.fwdSign + newFwdY * halfW * cornerType.rgtSign
+        val myCornerOffsetY: Float = newFwdY * halfD * cornerType.fwdSign - newFwdX * halfW * cornerType.rgtSign
+        val newPosition: Vector2 = Vector2(theirCornerPos.x - myCornerOffsetX, theirCornerPos.y - myCornerOffsetY)
 
         if (distance < SHOW_THRESHOLD) {
             return Snap(
@@ -68,6 +90,7 @@ object SnapDetector {
                 target = target,
                 distance = distance,
                 newPosition = newPosition,
+                newAngle = newAngle,
                 isVeryClose = distance < VERY_CLOSE_THRESHOLD,
             )
         } else {

@@ -63,7 +63,7 @@ class MovementPreviewGhostActor(
                 halfD, halfW,
                 snap.element.depth, snap.element.width,
                 1f, 1f,
-                snap.element.angleDeg,
+                snap.newAngle,
             )
         }
     }

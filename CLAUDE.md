@@ -40,6 +40,7 @@ Dos ejércitos de 60 AP se enfrentan en un tablero de 36"×24". Turno: tirada de
 - **Elementos:** 4 unidades pintadas como rectángulos azules, bordes blancos, chevrones blancos.
 - **Selección:** click selecciona grupo o elemento individual; Ctrl+click añade/quita del grupo validando conectividad; highlight con outline amarillo.
 - **Movimiento:** Up/Down translate, Left/Right pivotan (grupos) o rotan (individuales), drag-and-drop ghost (individual only); Enter confirma, Escape cancela; snap automático si `isVeryClose`.
+- **Snaps:** Valida ángulos requeridos (±15° tolerancia); aplica posición + ángulo simultáneamente para alineación exacta.
 - **Dimensiones:** width/depth explícitos en cada elemento (40mm×20mm en inches), battlefield 36"×24".
 
 ## Optimizacion de uso de tokens y de contexto
@@ -133,7 +134,8 @@ Algunos alias para workflow humano-ai:
 | `Corner` | `wargame.logic` | Representa una de las 4 esquinas de un elemento; encapsula tipo + parámetros geométricos `(fwdSign, rgtSign)` | Tiene `enum Type` con 4 valores |
 | `SnapType` | `wargame.ui` | Enum de 8 tipos de snap derivados de DBA 2.2 (grupo, columna, contacto frontal, ataque de flanco) | Define `myCorner`, `theirCorner`, `requiredAngleDiff` |
 | `Snap` | `wargame.ui` | Data class que representa un snap potencial: qué, dónde, distancia, si es muy cercano (`isVeryClose`) | Tiene `snapType`, `element`, `target`, `distance`, `newPosition`, `isVeryClose` |
-| `SnapDetector` | `wargame.logic` | Detecta snaps potenciales para un elemento contra lista de targets; evalúa 8 tipos de snap, retorna sorted por distancia | Usa `SnapType`, `Corner`, `Snap`; filtra por `SHOW_THRESHOLD` (1.0"), marca `isVeryClose` si `< VERY_CLOSE_THRESHOLD` (0.3") |
+| `SnapDetector` | `wargame.logic` | Detecta snaps potenciales; valida ángulos (`requiredAngleDiff`±15°), calcula `newPosition` y `newAngle` considerando la rotación final | Usa `SnapType`, `Corner`, `Snap`; filtra por `SHOW_THRESHOLD`, marca `isVeryClose` si `< VERY_CLOSE_THRESHOLD` |
+| `Snap` | `wargame.ui` | Data class: snap potencial con tipo, distancia, posición/ángulo final | Tiene `newPosition` y `newAngle`; usado por MovementSystem para aplicar alineación |
 
 ## Workflow relativo a tareas y backlog
 Cuando se menciona una nueva tarea, requisito, elemento de backlog, TODO etc:

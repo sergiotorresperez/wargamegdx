@@ -72,6 +72,8 @@ class MovementSystem(
         if (movement.snaps.isNotEmpty() && movement.snaps.first().isVeryClose) {
             val snap: Snap = movement.snaps.first()
             movement.previews.first().position.set(snap.newPosition)
+            movement.previews.first().angleDeg = snap.newAngle
+            onMovementConfirmed(movement)
         }
 
         return true
