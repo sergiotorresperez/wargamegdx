@@ -34,35 +34,45 @@ object SnapDetector {
         val snaps = mutableListOf<Snap>()
 
         for (target in targets) {
-            for (snapType in SnapType.values()) {
-                val myCornerPos: Vector2 = element.getCorner(snapType.myCorner)
-                val theirCornerPos: Vector2 = target.getCorner(snapType.theirCorner)
-
-                // Distance between the corners that would be aligned by this snap
-                val distance: Float = myCornerPos.dst(theirCornerPos)
-
-                // New position of element's center to achieve exact corner alignment
-                // Formula: newPos = targetCorner - (myCorner - currentPos)
-                val offset: Vector2 = Vector2(myCornerPos).sub(element.position)
-                val newPosition: Vector2 = Vector2(theirCornerPos).sub(offset)
-
-                if (distance < SHOW_THRESHOLD) {
-                    snaps.add(
-                        Snap(
-                            snapType = snapType,
-                            element = element,
-                            target = target,
-                            distance = distance,
-                            newPosition = newPosition,
-                            isVeryClose = distance < VERY_CLOSE_THRESHOLD,
-                        )
-                    )
+            for (snapType in SnapType.entries) {
+                val snap = findSnap(snapType, element, target)
+                if (snap != null) {
+                    snaps.add(snap)
                 }
-
             }
         }
 
         return snaps.sortedBy { it.distance }
+    }
+
+    private fun findSnap(
+        snapType: SnapType,
+        element: Element,
+        target: Element
+    ): Snap? {
+        val myCornerPos: Vector2 = element.getCorner(snapType.myCorner)
+        val theirCornerPos: Vector2 = target.getCorner(snapType.theirCorner)
+
+        // Distance between the corners that would be aligned by this snap
+        val distance: Float = myCornerPos.dst(theirCornerPos)
+
+        // New position of element's center to achieve exact corner alignment
+        // Formula: newPos = targetCorner - (myCorner - currentPos)
+        val offset: Vector2 = Vector2(myCornerPos).sub(element.position)
+        val newPosition: Vector2 = Vector2(theirCornerPos).sub(offset)
+
+        if (distance < SHOW_THRESHOLD) {
+            return Snap(
+                snapType = snapType,
+                element = element,
+                target = target,
+                distance = distance,
+                newPosition = newPosition,
+                isVeryClose = distance < VERY_CLOSE_THRESHOLD,
+            )
+        } else {
+            return null
+        }
     }
 
 }

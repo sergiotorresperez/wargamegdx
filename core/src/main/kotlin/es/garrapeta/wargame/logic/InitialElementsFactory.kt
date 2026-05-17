@@ -11,7 +11,7 @@ class InitialElementsFactory {
         val a = Element(
             id = "A",
             position = Vector2(10f, 4f),
-            angleDeg = 90f,
+            angleDeg = 105f,
             width = 40f.mmToInches(),
             depth = 20f.mmToInches()
         )
@@ -19,21 +19,21 @@ class InitialElementsFactory {
         val b = Element(
             id = "B",
             position = Vector2(15f, 4f),
-            angleDeg = 90f,
+            angleDeg = 105f,
             width = 40f.mmToInches(),
             depth = 20f.mmToInches()
         )
         val c = Element(
             id = "C",
             position = Vector2(15f + b.width, 4f),
-            angleDeg = 90f,
+            angleDeg = 105f,
             width = 40f.mmToInches(),
             depth = 20f.mmToInches()
         )
         val d = Element(
             id = "D",
             position = Vector2(15f + c.width * 2f, 4f),
-            angleDeg = 90f,
+            angleDeg = 105f,
             width = 40f.mmToInches(),
             depth = 20f.mmToInches()
         )
